@@ -1,0 +1,21 @@
+.table{
+
+    .status{
+        padding: 5px;
+        border-radius: 5px;
+
+        &.Approved{
+            color: green;
+            background-color: rgba(0, 128, 0, 0.156);
+        }
+        &.UnApproved{
+            color: crimson;
+            background-color: rgba(255, 0, 0, 0.156);
+        }
+    }
+    .nameIcon{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+}

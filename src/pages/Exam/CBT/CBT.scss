@@ -1,0 +1,141 @@
+// CBTComponent.scss
+
+.cbt-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    .heading{
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+  }
+  .calculator-button-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 10px;
+    z-index: 9999; /* Set a higher z-index to ensure the calculator button displays above other elements */
+  }
+  
+  .calculator-button {
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .calculator{
+    position: absolute; /* Add absolute positioning to the calculator component */
+    top: 4rem; /* Set top position to 0 */
+    left: 0; /* Set left position to 0 */
+    z-index: 9998; /* Set z-index to be lower than the calculator button, so it displays below the button */
+  }
+  .submit-button-container{
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    margin: 10px;
+    z-index: 9999;
+    .submit{
+      background-color: #2600ff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  
+    &:hover {
+      background-color: #2003c7;
+    }
+    }
+  }
+  
+  .question-container {
+    
+    width: 80%;
+    max-width: 600px;
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .question {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    
+  }
+  .questionCount{
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .options {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+  
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+  
+      &:hover {
+        background-color: #f8f8f8;
+      }
+  
+      &.selected {
+        background-color: #007bff;
+        color: #fff;
+        border-color: #007bff;
+  
+        &:hover {
+          background-color: #0069d9;
+        }
+      }
+    }
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  .next-button, .previous-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  
+    &:hover {
+      background-color: #0069d9;
+    }
+  }
+  .timer{
+    position: absolute;
+    top: 1.5rem;
+    right: 1rem;
+  }
+  .colouredtime{
+    color: red;
+  }

@@ -1,0 +1,32 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+.AdminLogin{
+    height: 100vh;
+    width: 100%;
+    display: flex;
+}
+.loginformcon{
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+@media (max-width: 800px) {
+    .AdminLogin{
+        flex-direction: column;
+        align-items: center;
+
+        .loginformcon{
+            height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            
+        }
+    }
+}

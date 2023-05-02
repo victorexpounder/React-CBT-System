@@ -1,0 +1,74 @@
+.home{
+    display: flex;
+    .sideBar{
+        transition: 0.5s;
+    }
+   .homeContainer{
+    width: 100%;
+    height: 100vh;
+    flex: 6;
+
+    .widgets{
+        display: flex;
+        padding: 20px;
+        gap: 20px;
+    }
+    .listContainer{
+        -webkit-box-shadow: 2px 4px 10px 1px rgba(0,0,0.47);
+        box-shadow: 2px 4px 10px 1px rgba(201,201,201,0.47);
+        padding: 20px;
+        margin: 20px;
+        
+
+        .listTitle{
+            font-weight: 500;
+            color: gray;
+            margin-bottom: 15px;
+        }
+        @media (max-width: 800px) {
+            width: 100%;
+        }
+      }
+   }
+   .menu{
+    display: none;
+    height: 50px;
+    
+   }
+   @media (max-width: 800px) {
+        .menu{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+       }
+       .hidden{
+        transform: translateX(-1016px);
+        animation-name: out;
+        animation-duration: 5s;
+        
+        
+       }
+       .show{
+        display: block;
+        animation-name: in;
+        animation-duration: 0.5s;
+        
+       }
+
+       @keyframes in {
+        0% {transform: translateX(-1016px)}
+        100% {transform: translateX(0px)}
+      }
+       @keyframes out {
+           0% {transform: translateX(0px)}
+            50% {transform: translateX(-1016px)}
+            100% {display: none}
+      }
+      .widgets{
+        flex-direction: column;
+        width: 100%;
+      }
+      
+   }
+}
