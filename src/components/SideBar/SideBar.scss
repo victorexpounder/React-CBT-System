@@ -8,6 +8,7 @@
     border-right: 0.5px solid rgb(224, 224, 224);
     min-height: 100vh;
     
+    
     .top{
         height: 50px;
         display: flex;
@@ -48,6 +49,7 @@
                 padding: 5px;
                 cursor: pointer;
                 transition: 0.5s;
+                margin-bottom: 10px;
                 
                 &:hover{
                     background-color: #ece8ff;

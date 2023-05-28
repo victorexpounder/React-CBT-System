@@ -1,0 +1,32 @@
+.userCard{
+    .Concard{
+        border-radius: 15px;
+    }
+    .title{
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    .details{
+        display: flex;
+        gap: 15px;
+
+        .detail{
+            .itemTitle{
+                margin-bottom: 5px;
+            }
+        }
+        
+        
+    }
+    .detailItem{
+        display: flex;
+        flex-direction: column;
+        .itemKey{
+            margin-bottom: 8px;
+        }
+    }
+    .cardActions{
+        display: flex;
+        justify-content: space-between;
+    }
+}

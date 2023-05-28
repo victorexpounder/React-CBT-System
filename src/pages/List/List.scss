@@ -1,0 +1,48 @@
+.list{
+    display: flex;
+    width: 100%;
+    
+    .listContainer{
+        flex: 6;
+        width: 100%;
+        height: 100vh;
+       
+    }
+
+    .menu{
+        display: none;
+        height: 50px;
+        
+       }
+       @media (max-width: 800px) {
+            .menu{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                
+           }
+           .hidden{
+            transform: translateX(-1016px);
+            animation-name: out;
+            animation-duration: 5s;
+            
+            
+           }
+           .show{
+            display: block;
+            animation-name: in;
+            animation-duration: 0.5s;
+            
+           }
+    
+           @keyframes in {
+            0% {transform: translateX(-1016px)}
+            100% {transform: translateX(0px)}
+          }
+           @keyframes out {
+               0% {transform: translateX(0px)}
+                50% {transform: translateX(-1016px)}
+                100% {display: none}
+          }
+        }
+}

@@ -6,6 +6,8 @@ import { NavBar } from '../../components/NavBar/NavBar'
 import { Widget } from '../../components/widget/widget'
 import { Tablec } from '../../components/Table/Table'
 import { ExamTable } from '../../components/ExamTable/ExamTable'
+import { Backdrop } from '@mui/material'
+import { AccountCard } from '../../components/AccountCard/AccountCard'
 export const Home = () => {
   
   const [sidetoggle, setSidetoggle] = useState('hidden')
@@ -18,6 +20,15 @@ export const Home = () => {
     setSidetoggle('hidden')
     
   }
+
+  const [open, setOpen] = useState(false);
+    const handleClose = () => {
+        setOpen(false);
+    };
+    const handleOpen = () => {
+        setOpen(true);
+    };
+
   return (
     <div className='home'>
       <div className={`sideBar ${sidetoggle}`}>
@@ -28,7 +39,7 @@ export const Home = () => {
       <Menu />
       </div>
       <div className="homeContainer" onClick={showMenu}>
-        <NavBar/>
+        <NavBar handleOpen={handleOpen}/>
         <div className="widgets">
           <Widget type="teacherApproved"/>
           <Widget type="teacherUnapproved"/>
@@ -39,6 +50,17 @@ export const Home = () => {
           <Tablec/>
 
         </div>
+
+        <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={open}
+        onClick={handleClose}
+      >
+        
+        <AccountCard/>
+
+      </Backdrop>
+
       </div>
     </div>
   )

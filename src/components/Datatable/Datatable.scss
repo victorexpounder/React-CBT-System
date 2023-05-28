@@ -1,0 +1,58 @@
+.datatable{
+    height: 600px;
+    padding: 20px;
+    
+    .cellWithImg{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+    }
+    .cellWithStatus{
+        padding: 5px;
+        border-radius: 5px;
+        &.approved{
+            color: green;
+            background-color: rgba(0, 128, 0, 0.05);
+        }
+        &.unapproved{
+            color: crimson;
+            background-color: rgba(255, 0, 0, 0.05);
+        }
+    }
+    .cellAction{
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        .viewButton{
+            padding: 2px 5px;
+            border-radius: 5px;
+            color: darkblue;
+            border: 1px solid rgba(0, 0, 128, 0.162);
+            cursor: pointer;
+        }
+        .deleteButton{
+            padding: 2px 5px;
+            border-radius: 5px;
+            color: crimson;
+            border: 1px solid rgba(255, 0, 0, 0.163);
+            cursor: pointer;
+        }
+        .approveButton{
+            padding: 2px 5px;
+            border-radius: 5px;
+            color: green;
+            border: 1px solid rgba(0, 255, 0, 0.283);
+            cursor: pointer;
+        }
+    }
+    .card{
+        
+    }
+    @media (max-width: 800px) {
+        width:450px;
+        
+        
+        
+    }
+}

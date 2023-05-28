@@ -5,7 +5,9 @@
     align-items: center;
     font-size: 14px;
     color: #555;
-
+    
+    
+   
     .wrapper{
         width: 100%;
         padding: 20px;
@@ -37,6 +39,7 @@
                 display: flex;
                 align-items: center;
                 margin: 20px;
+                cursor: pointer;
                 
 
                 .icon{
@@ -51,4 +54,37 @@
             }
         }
     }
+
+    .notification-container {
+        position: fixed;
+        top: 3rem;
+        right: 7rem;
+        z-index: 9999;
+        color: #ffffff;
+        background-color: #888;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      
+        
+        .notificationItem{
+            
+            border-bottom: 1px solid #626262;
+            font-size: 1rem;
+            transition: 1s;
+            cursor: pointer;
+
+            :hover{
+                background-color: #6a6969a5;
+            }
+            p{
+                padding: 0.5rem;
+            }
+
+            
+        }
+      }
+      
+      .notification-icon {
+        color: #ffffff;
+      }
 }
