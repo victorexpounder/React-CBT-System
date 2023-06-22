@@ -16,11 +16,15 @@
             margin-right: 10px;
             color: #fff;
             background-color: rgba(98, 39, 176, 0.643);
-            
+            &.disabled{
+                background-color:#aca8a8;
+                cursor: not-allowed;
+            }
             :hover{
                 background-color: rgba(98, 39, 176, 0.822);
             }
         }
+
     }
     
 
@@ -43,6 +47,8 @@
             box-sizing: border-box;
             padding: 1.5rem;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            
             
             .unavailable{
                 width: 100%;
@@ -77,6 +83,10 @@
                 .historyList:hover{
                     background-color: rgba(77, 32, 137, 0.52);
                     color: #fff;
+
+                    .icons{
+                        display: flex;
+                    }
                 }
                 .historyList{
                     border-radius: 10px;
@@ -88,14 +98,80 @@
                     justify-content: space-between;
                     color: #4f4d4d;
                     
+                    
+                  
                     .icons{
-                        display: flex;
+                        display: none;
                         gap: 0.5rem;
                         align-self: flex-end;
                         cursor: pointer;
+                        transition: 1s display ease;
                     }
                 }
             }
+
+
+            .editQuestions{
+                display: flex;
+                justify-content: space-between;
+                gap: 20px;
+                width: 100%;
+                flex-direction: column;
+
+                .header{
+                    display: flex;
+                    justify-content: space-between;
+                }
+
+                .qInput{
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    textarea{
+                        width: 600px;
+                        font-size: 20px;
+                        border-radius: 10px;
+                        background: transparent;
+                        padding: 5px;
+                        color: #888;
+                        
+                        
+
+                    }
+                }
+
+                .optionSec{
+                    width: 100%;
+                    
+                    .optionAdd{
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: flex-end;
+                    }
+                    
+                    .optionList{
+                        display: flex;
+                        justify-content: space-between;
+                        height: 150px;
+                        overflow-y: auto;
+                    }
+                }
+
+                .controllers{
+                    width: 100%;
+                    display: flex;
+                    justify-content: space-between;
+
+                }
+            }
+
+            .resultCon{
+                color: #888;
+            }
+
         }
     }
 }

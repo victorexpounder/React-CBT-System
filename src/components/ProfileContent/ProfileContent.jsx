@@ -40,6 +40,7 @@ export const ProfileContent = () => {
 
   function handleSubmit(event) {
     event.preventDefault();
+    handleNameSave();
     // Submit form data to server here
   }
 
@@ -105,6 +106,7 @@ export const ProfileContent = () => {
           Name:
         </label>
         <input
+          required
           type="text"
           id="name"
           value={Updatename}
@@ -115,6 +117,7 @@ export const ProfileContent = () => {
           Email:
         </label>
         <input
+          required
           type="email"
           id="email"
           value={Updateemail}
@@ -132,7 +135,7 @@ export const ProfileContent = () => {
           ref={fileInputRef}
         />
         {showNameInput &&
-          <button type="submit" className="fbutton" onClick={handleNameSave}>
+          <button type="submit" className="fbutton" >
           Save Changes
           </button>
         }

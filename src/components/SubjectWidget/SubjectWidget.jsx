@@ -70,6 +70,8 @@ export const SubjectWidget = () => {
                 <DialogContent>
                   <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
                     <FormControl sx={{ m: 1, minWidth: 120 }}>
+                    
+
                       <InputLabel id="demo-dialog-select-label">Teacher</InputLabel>
                       <Select
                         labelId="demo-dialog-select-label"
