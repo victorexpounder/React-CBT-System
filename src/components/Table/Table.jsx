@@ -19,7 +19,7 @@ export const Tablec = () => {
     },
     {
     
-    id: "23336677",
+    id: "23336678",
     fullName: "Richardson Smith",
     status: "Approved",
     date: "2023/15/04",
@@ -27,14 +27,14 @@ export const Tablec = () => {
     },
     {
     
-    id: "23336677",
+    id: "23336679",
     fullName: "Chukwuemeka Collins",
     status: "Approved",
     date: "2023/15/04",
     avatar: <Avatar src="https://images.pexels.com/photos/11402832/pexels-photo-11402832.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Remy Sharp" className='avatar'/>
     },
     {
-    id: "23336677",
+    id: "23336680",
     fullName: "Ada Maduka",
     status: "UnApproved",
     date: "2023/15/04",

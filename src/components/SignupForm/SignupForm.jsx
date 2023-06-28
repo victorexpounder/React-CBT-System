@@ -8,6 +8,7 @@ import MultipleSelect from '../Selection/multipleSelect';
 import { db } from '../../firebase';
 import { getFirestore } from "firebase/firestore";
 import { collection, addDoc, setDoc, doc} from "firebase/firestore"; 
+import { Alert, Snackbar } from '@mui/material';
 
 export const SignupForm = () => {
     const [error, setError] = useState(false);
@@ -18,6 +19,7 @@ export const SignupForm = () => {
     const [subjects, setSubjects] = React.useState([]);
     const approved = false;
     const [Offline, setOffline] = useState(false) ;
+    const [openSuccess, setOpenSuccess] = useState(false) ;
       function stillonline()
     {
         var x =  navigator.onLine;
@@ -38,7 +40,7 @@ export const SignupForm = () => {
         .then((userCredential) => {
             // User sign-up or sign-in successful
             const user = userCredential.user;
-            alert("account created");
+            setOpenSuccess(true);
 
             const uid = userCredential.user.uid;
             
@@ -70,6 +72,13 @@ export const SignupForm = () => {
         <button type="submit">SignUp</button>
       </form>
       <p><a href='/AdminLogin'>Login to admin portal</a></p>
+
+
+      <Snackbar open={openSuccess} autoHideDuration={6000} onClose={() => setOpenSuccess(false)}>
+        <Alert onClose={() => setOpenSuccess(false)} severity="success" sx={{ width: '100%' }}>
+          Account Created Succesfully!!
+        </Alert>
+      </Snackbar>
       </div>
       
     </div>

@@ -53,10 +53,12 @@ export const SideBar = () => {
                     <span>Profile</span>
                 </li>
                 </Link>
+                <Link to={'/login'} style={{textDecoration: 'none'}}>
                 <li>
                     <Logout className='icon'/>
                     <span>LogOut</span>
                 </li>
+                </Link>
             </ul>
         </div>
         <div className="bottom">

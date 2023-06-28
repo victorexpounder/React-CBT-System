@@ -1,8 +1,8 @@
-
+//code
 import React, { useEffect, useState } from 'react'
 import { SideBar } from '../../../components/SideBar/SideBar'
 import { Backdrop, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, FormControl, Input, InputLabel, MenuItem, Paper, Select, Slide, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip} from '@mui/material'
-import { ArrowBack, Article, DeleteForever, Edit, Label, Menu, Public, PublicOff, Publish, Save } from "@mui/icons-material";
+import { ArrowBack, Article, DeleteForever, Edit, Label, Menu, Padding, Public, PublicOff, Publish, Save } from "@mui/icons-material";
 import { NavBar } from '../../../components/NavBar/NavBar'
 import { AccountCard } from '../../../components/AccountCard/AccountCard'
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -16,7 +16,27 @@ export const SubjectSingle = () => {
   const term =  JSON.parse(localStorage.getItem('term'));
   const grade =  JSON.parse(localStorage.getItem('class'));
   const [examsList, setExamsList] = useState([])
-  const [selectedExam, setSelectedExam] = useState();
+
+  //setting selected exam to dummy so we dont get undefined error at the start
+  const [selectedExam, setSelectedExam] = useState(
+    {
+      name: 'exam',
+      public: false,
+      questionNo : 10,
+      questions : [
+        {
+          question : 'what is rule of law',
+          options : [
+            {optionText: '', isCorrect: false},
+            {optionText: '', isCorrect: false},
+            {optionText: '', isCorrect: false},
+            {optionText: 'Rights of minority', isCorrect: false}
+          ]
+        }
+      ]
+    }
+  );
+  const [examOpen, setExamOpen] = useState(false)
   const [deleteExam, setDeleteExam] = useState(null);
   const [showAddDialouge, setShowAddDialouge] = useState(false);
   const [examName, setExamName] = useState(null);
@@ -25,32 +45,80 @@ export const SubjectSingle = () => {
   const [qnoerr, setqnoerr] = useState(false);
   const [opValue, setOpValue] = useState(() => {
     const initialArray = [];
-    for (let i = 0; i < 10; i++) {
-      initialArray.push([]);
+    for (let i = 0; i < selectedExam.questions.length; i++) {
+      initialArray.push([
+        selectedExam.questions[i].options[0].optionText,
+        selectedExam.questions[i].options[1].optionText,
+        selectedExam.questions[i].options[2].optionText,
+        selectedExam.questions[i].options[3].optionText,
+      ]);
     }
     return initialArray;
   });
+
+  //setting the two dimensional array for each question with four options
   const [opSelectValue, setOpselectValue] = useState(() => {
     const initialArray = [];
-    for (let i = 0; i < 10; i++) {
-      initialArray.push([]);
+    for (let i = 0; i < selectedExam.questions.length; i++) {
+      initialArray.push([
+        selectedExam.questions[i].options[0].isCorrect,
+        selectedExam.questions[i].options[1].isCorrect,
+        selectedExam.questions[i].options[2].isCorrect,
+        selectedExam.questions[i].options[3].isCorrect,
+       ]);
     }
+    
+    
     return initialArray;
   });
-  const [qValue, setQvalue] = useState([]);
+
+  const [qValue, setQvalue] = useState(() =>{
+    const initialArray = [];
+    for (let i = 0; i < selectedExam.questions.length; i++) {
+      initialArray.push(
+        selectedExam.questions[i].question,
+       )
+    }
+    return initialArray;
+  }
+  );
+
+ //using useEffect to redeclare the two dimensional array ans setting it to setOpselect each time selectedExam changes
+  useEffect(() => {
+    const initialArray = [];
+    const initialArrayValue = [];
+    const initialArrayQuestion = [];
+
+    for (let i = 0; i < selectedExam.questions.length; i++) {
+      initialArray.push([
+        selectedExam.questions[i].options[0].isCorrect,
+        selectedExam.questions[i].options[1].isCorrect,
+        selectedExam.questions[i].options[2].isCorrect,
+        selectedExam.questions[i].options[3].isCorrect,
+      ]);
+
+      initialArrayValue.push([
+        selectedExam.questions[i].options[0].optionText,
+        selectedExam.questions[i].options[1].optionText,
+        selectedExam.questions[i].options[2].optionText,
+        selectedExam.questions[i].options[3].optionText,
+      ]);
+
+      initialArrayQuestion.push(
+        selectedExam.questions[i].question
+      )
+
+    }
+    setOpselectValue(initialArray);
+    setOpValue(initialArrayValue);
+    setQvalue(initialArrayQuestion);
+  }, [selectedExam]);
+
+
   const [qIndex, setQIndex] = useState(0);
   const [showResult, setShowResult] = useState(false);
-  useEffect(() => {
-    // Update the value of the select when qIndex changes
-    setOpselectValue((prevOpSelectValue) => {
-      // Make a copy of the previous state to avoid mutations
-      const updatedOpSelectValue = [...prevOpSelectValue];
-      // Update the value for the corresponding question and option
-      updatedOpSelectValue[qIndex][0] = true;
-      // Return the updated state
-      return updatedOpSelectValue;
-    });
-  }, [qIndex]);
+  const [duration, setDuration] = useState(0)
+  
 
 
   const Transition = React.forwardRef(function Transition(props, ref) {
@@ -117,7 +185,7 @@ export const SubjectSingle = () => {
     }
 
     const handleDialouge = () =>{
-      if(!selectedExam){
+      if(!examOpen){
         setShowAddDialouge(!showAddDialouge)
         setExamName(null);
         setValue()
@@ -198,25 +266,41 @@ export const SubjectSingle = () => {
 
     const handleOptChange = (index, event) =>{
       const text = event.target.value;
-      opValue[qIndex][index] = text;
+      // Create a copy of the state array
+      const updatedArray = [...opValue];
+      
+      // Modify the value in the copied array
+      updatedArray[qIndex][index] = text;
+      
+      // Update the state with the modified array
+      setOpValue(updatedArray);
     }
     const handleOptSelect = (event, index) =>{
       const SelectedBoolean = event.target.value;
-      opSelectValue[qIndex][index] = SelectedBoolean;
+  
+      // Create a copy of the state array
+      const updatedArray = [...opSelectValue];
+      
+      // Modify the value in the copied array
+      updatedArray[qIndex][index] = SelectedBoolean;
+      
+      // Update the state with the modified array
+      setOpselectValue(updatedArray);
       
     }
 
     const handlequestionChange = (event) =>{
       const text = event.target.value;
-      qValue[qIndex] = text;
+      const updatedArray = [...qValue];
+      updatedArray[qIndex] = text
+      setQvalue(updatedArray);
     }
 
     var handleNP = (operation) =>{
       if (operation === 'next') {
         
           qIndex < selectedExam.questions.length - 1? setQIndex(qIndex + 1) : setQIndex(qIndex)
-          console.log(selectedExam.questions.length);
-          console.log(opSelectValue[qIndex][1]);
+          
         } 
       if (operation === 'previous') {
       
@@ -224,15 +308,15 @@ export const SubjectSingle = () => {
           
         } 
         
-
-        
-        
     }
 
-
-    
+   const handleExamSelect = () =>{
+      
+      
+      setExamOpen(true)
+      console.log(selectedExam);
+    }
   
-
 
   return (
     <div>
@@ -254,7 +338,7 @@ export const SubjectSingle = () => {
 
           <div className="addExamButton">
             <Tooltip title="Add an exam" arrow>
-          <Button variant="contained" startIcon={<AddBoxIcon/>} className={`dbutton ${selectedExam? 'disabled' : ''}`} onClick={handleDialouge}>
+          <Button variant="contained" startIcon={<AddBoxIcon/>} className={`dbutton ${examOpen? 'disabled' : ''}`} onClick={handleDialouge}>
             EXAM
           </Button>
             </Tooltip>
@@ -262,10 +346,10 @@ export const SubjectSingle = () => {
 
           <div className="examHistoryCon">
             <div className="examHistory">
-              {(examsList.length !== 0 && !selectedExam && !showResult &&
+              {(examsList.length !== 0 && !examOpen && !showResult &&
                 <div className="historyListCon">
                   {examsList.map((exam) =>(
-                    <div className="historyList">
+                    <div className="historyList" onClick={()=> setSelectedExam(exam)}>
                       <div className="details">
                         <div className="publicIcon">
                           {exam.public? <Public/> : <PublicOff/>}
@@ -276,7 +360,7 @@ export const SubjectSingle = () => {
                       <div className="icons">
                         <Tooltip title="Edit">
                         <Fab color="secondary" aria-label="edit" size='small'> 
-                        <Edit onClick={() => setSelectedExam(exam)}/>
+                        <Edit onClick={() => handleExamSelect(exam)}/>
                         </Fab>
                         </Tooltip>
 
@@ -309,21 +393,22 @@ export const SubjectSingle = () => {
 
                 )}
 
-                {(examsList.length === 0 && !selectedExam && !showResult &&
+                {(examsList.length === 0 && !examOpen && !showResult &&
                   <div className="unavailable">
                   <h1>No Exams Available</h1>
                   
                   </div>
                   )}
 
-                 {(selectedExam && !showResult &&
+                 {(examOpen && !showResult &&
                     <div className='editQuestions'>
                       {/* header section */}
 
                       <div className="header">
+                      <ArrowBack onClick={()=> setExamOpen(false)} sx={{cursor:'pointer'}}/>
                       <h2>{qIndex + 1}/{selectedExam.questionNo}</h2>
                       <Tooltip title="Add an exam" arrow>
-                        <Button variant="contained" startIcon={<Save/>} className={`dbutton ${selectedExam? 'disabled' : ''}`} onClick={() => setSelectedExam(null)}>
+                        <Button variant="contained" startIcon={<Save/>} className={`dbutton ${selectedExam? 'disabled' : ''}`} onClick={() => setExamOpen(false)}>
                           Save
                         </Button>
                         </Tooltip>
@@ -337,8 +422,7 @@ export const SubjectSingle = () => {
                         label="Enter Question"
                         multiline
                         rows={2}
-                        defaultValue={selectedExam.questions[qIndex].question}
-                        value={qValue}
+                        value={qValue[qIndex]}
                         variant="standard"
                         onChange={handlequestionChange}
                         
@@ -351,13 +435,12 @@ export const SubjectSingle = () => {
                         <div className="optionList">
                         {selectedExam.questions[qIndex].options.map((option, index) =>(
                           <FormControl sx={{ m:1, minWidth: 120, display:'flex', gap: 1,}} size='small'>
-                          <TextField id="outlined-basic" label="Option" variant="standard" multiline fullWidth defaultValue={option.optionText} value={opValue[qIndex][index]} onChange={(event) => handleOptChange(index, event)}/> 
+                          <TextField id="outlined-basic" label="Option" variant="standard" multiline fullWidth  value={opValue[qIndex][index]} onChange={(event) => handleOptChange(index, event)}/> 
                               <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
                                 value={opSelectValue[qIndex][index]}
                                 label="isCorrect"
-                                defaultValue={option.isCorrect}
                                 onChange={(event)=>handleOptSelect(event,index)}
                                 >
                                 <MenuItem value={true}>true</MenuItem>
@@ -483,6 +566,19 @@ export const SubjectSingle = () => {
               <p>Amount of question should be 1 - 100</p>
               )}
             </FormControl>
+
+              <label htmlFor="select">Enter duration</label>
+            <select value={duration} name='select' style={{padding: 10, border: 'none',  borderBottom: '1px solid #888'}} onChange={(e)=> setDuration(e.target.value)}>
+              <option value={1800}>30 mins</option>
+              <option value={3600} selected>1 hr</option>
+              <option value={5400}>1hr 30mins</option>
+              <option value={7200}>2hrs </option>
+              <option value={9000}>2hrs 30mins</option>
+              <option value={10800}>3hrs </option>
+              <option value={12600}>3hrs 30mins</option>
+              <option value={14400}>4hrs </option>
+            </select>
+
           </Box>
         </DialogContent>
         <DialogActions>
@@ -501,7 +597,7 @@ export const SubjectSingle = () => {
           open={deleteExam? true : false}
           TransitionComponent={Transition}
           keepMounted
-          onClose={()=> setSelectedExam(null)}
+          onClose={()=> setDeleteExam(null)}
           aria-describedby="alert-dialog-slide-description"
         >
           <DialogTitle>{`Are you sure you want to delete ${deleteExam.name}`}</DialogTitle>

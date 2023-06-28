@@ -21,6 +21,7 @@ import { ClassPage } from "./pages/AdminExam/ClassPage/ClassPage";
 import { AdminSubjectSelect } from "./pages/AdminExam/AdminSubjectSelect/AdminSubjectSelect";
 import { SubjectSingle } from "./pages/AdminExam/SubjectSinglePage/SubjectSingle";
 import { TermPage } from "./pages/AdminExam/TermPage/TermPage";
+import { SelectExam } from "./pages/Exam/SelectExam/SelectExam";
 
 
 
@@ -33,7 +34,7 @@ function App() {
 
 
   
-  console.log(currentUser);
+  
   return (
     <div className="App">
       
@@ -43,19 +44,20 @@ function App() {
               <Route path="login" element={<Login/>} />
               <Route path="Adminlogin" element={<AdminLogin/>} />
               <Route path="AdminSignup" element={<AdminSignup/>} />
-              <Route index element={<Home/>} />
-              <Route path="teachers" element={<List/>} />
-              <Route path="subjects" element={<Subject/>} />
-              <Route path="profile" element={<ProfilePage/>} />
+              <Route path="selectExam" element={<RequireAuth><SelectExam/></RequireAuth>} />
+              <Route index element={<RequireAuth><Home/></RequireAuth>} />
+              <Route path="teachers" element={<RequireAuth><List/></RequireAuth>} />
+              <Route path="subjects" element={<RequireAuth><Subject/></RequireAuth>} />
+              <Route path="profile" element={<RequireAuth><ProfilePage/></RequireAuth>} />
               <Route path="exams/">
-                <Route index element={<YearPage/>} />
+                <Route index element={<RequireAuth><YearPage/></RequireAuth>} />
                 <Route path="class/">
-                  <Route index element={<ClassPage/>} />
+                  <Route index element={<RequireAuth><ClassPage/></RequireAuth>} />
                   <Route path="term/">
-                      <Route index element={<TermPage/>}/>
+                      <Route index element={<RequireAuth><TermPage/></RequireAuth>}/>
                       <Route path="subjects/">
-                        <Route index element={<AdminSubjectSelect/>} />
-                        <Route path="subjectpage" element={<SubjectSingle/>} />
+                        <Route index element={<RequireAuth><AdminSubjectSelect/></RequireAuth>} />
+                        <Route path="subjectpage" element={<RequireAuth><SubjectSingle/></RequireAuth>} />
                       </Route>
                   </Route>
                   </Route>

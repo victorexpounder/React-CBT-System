@@ -1,0 +1,67 @@
+.selectView{
+    background-color: #eeeaeae6;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    .navBar{
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 1rem 0.5rem 1rem;
+        flex: 1;
+        @media (min-width: 800px) {
+            padding: 0.5rem 6rem 0.5rem 6rem;
+        }
+        h1{
+            font-family: "Delicious Handrawn", cursive;
+            font-size: 1.5rem;
+            color: #233c9b;
+            cursor: pointer;
+        }
+        .logout{
+            display: flex;
+            flex-direction: row;
+            font-size: 1rem;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+            color: #233c9b;
+            cursor: pointer;
+        }
+    }
+    .content{
+        flex: 15;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 6rem;
+        gap: 1rem;
+        .detailsCon{
+            padding: 2rem;
+            width: 50%;
+            border-radius: 10px;
+            background-color: #fff;
+            display: flex;
+            gap: 1.5rem;
+            flex-direction: column;
+
+        }
+        .proceedButton{
+            width: 10rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: rgba(48, 25, 132, 0.6156862745);
+            color: #fff;
+            font-size: x-large;
+            padding: 0.5rem;
+
+            &:hover{
+                background-color: rgba(48, 25, 132, 0.74);
+            }
+        }
+    }
+}

@@ -59,6 +59,9 @@ export const NavBar = ({handleOpen}) => {
           <div className="notificationItem"><p>Notification 2</p></div>
         </Paper>
       )}
+
+
+      
     </div>
   )
 }

@@ -4,11 +4,16 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+const key = process.env.REACT_APP_Key;
+console.log(key)
 const firebaseConfig = {
   apiKey: "AIzaSyCHXJ-gFya7ybCTlOOb8XmWjKyPLk3FogQ",
   authDomain: "blessed-cbt.firebaseapp.com",

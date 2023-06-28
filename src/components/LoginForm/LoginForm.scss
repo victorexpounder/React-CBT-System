@@ -17,18 +17,34 @@
             align-items: center;
             
             
-            
-            input{
+            .inputDiv{
                 width: 60%;
                 height: 50px;
                 margin: 10px;
                 border: 1px solid transparent;
                 border-radius: 8px;
                 background-color: #f3f3f4;
-                color: black;
-                font-size: 18px;
+                display: flex;
+                padding: 5px;
                 
+                input{
+                    padding: 5px;
+                    background: transparent;
+                    flex: 1;
+                    color: black;
+                    font-size: 18px;
+                    border: none;
+                    &:focus{
+                        border-color: transparent;
+                    }
+                }
+                .eye{
+                    align-self: center;
+                    justify-self: center;
+                    cursor: pointer;
+                }
             }
+            
             
             button{
                 margin-top: 30px;
@@ -67,3 +83,5 @@
         
     }
     }
+    
+   
