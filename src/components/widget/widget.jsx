@@ -19,9 +19,9 @@ export const Widget = ({type}) => {
         }
       };
     
-      useEffect(() => {
+
         fetchTeachers();
-      }, []);
+
 
       console.log(teachers);
     const approvedTeachers = teachers?.filter((teacher) => teacher.approved === true);

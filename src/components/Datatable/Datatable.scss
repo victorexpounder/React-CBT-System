@@ -32,9 +32,16 @@
             cursor: pointer;
         }
         .deleteButton{
-            padding: 2px 5px;
+            padding: 2px 1px;
             border-radius: 5px;
             color: crimson;
+            border: 1px solid rgba(255, 0, 0, 0.163);
+            cursor: pointer;
+        }
+        .notApprove{
+            padding: 2px 1px;
+            border-radius: 5px;
+            color: rgb(228, 105, 105);
             border: 1px solid rgba(255, 0, 0, 0.163);
             cursor: pointer;
         }

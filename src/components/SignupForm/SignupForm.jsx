@@ -6,7 +6,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import SelectAutoWidth from '../Selection/SimpleSelect';
 import MultipleSelect from '../Selection/multipleSelect';
 import { db } from '../../firebase';
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, serverTimestamp } from "firebase/firestore";
 import { collection, addDoc, setDoc, doc} from "firebase/firestore"; 
 import { Alert, Snackbar } from '@mui/material';
 
@@ -43,10 +43,11 @@ export const SignupForm = () => {
             setOpenSuccess(true);
 
             const uid = userCredential.user.uid;
+            const timestamp = serverTimestamp(); // Get the server timestamp
             
             // Create a user document in Firestore
             const userDocRef = doc(db, 'users', uid);
-             setDoc(userDocRef, { fullname, role, subjects, approved},);
+             setDoc(userDocRef, { fullname, role, subjects, approved,created_at: timestamp, email},);
             console.log('User roles added successfully!');
             
         })

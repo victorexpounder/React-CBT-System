@@ -62,6 +62,7 @@ function App() {
                   </Route>
                   </Route>
               </Route>
+              
 
               <Route  path="cbt" element={<RequireAuth><CBTComponent/></RequireAuth>} />
           </Route>
