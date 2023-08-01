@@ -8,6 +8,8 @@ import { WidgetTemp } from '../../../components/ExamsWidget/ExamsWidget';
 import './YearPage.scss';
 import { Link } from 'react-router-dom'
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import { collection, doc, getDocs, query, setDoc } from 'firebase/firestore';
+import { db } from '../../../firebase';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -45,20 +47,41 @@ export const YearPage = () => {
         setDopen(true);
     };
 
+    const [sessionList, setSessionList] = useState([]);
+    const [nextYear, setNextYear] = useState('');
+    const fetchSubjects = async () =>{
+      try{
 
-    const [yearList, setYearList] = useState([
-       '2018/2019',
-       '2019/2020',
-       '2020/2021',
-       '2021/2022',
-       '2022/2023',
+        const sessionRef = collection(db, "session");
+        const q = query(sessionRef);
+        const querySnapshot = await getDocs(q);
+        const sessions = [];
+        
+        querySnapshot.forEach((doc) => {
+          const session = doc.id;
+          sessions.push(session);
+        })
+        setSessionList(sessions);
+        getNextYear();
+        
+      }
+      catch(error){
+        console.log(error);
+      }
+    }
 
-    ]);
+    fetchSubjects();
     
-      const lastYear = yearList[yearList.length - 1];
-      const lastYearParts = lastYear.split('/'); // Split the year into two parts
-      const nextYearPart = parseInt(lastYearParts[0]) + 2; // Increment the second part of the year
-      const nextYear = `${lastYearParts[1]}/${nextYearPart}`; // Construct the next year
+    const getNextYear = () =>{
+        const lastYear =  sessionList[sessionList.length - 1];
+        const lastYearParts = lastYear.split('-'); // Split the year into two parts
+        const nextYearPart = parseInt(lastYearParts[0]) + 2; // Increment the second part of the year
+        const nextYear = `${lastYearParts[1]}-${nextYearPart}`; // Construct the next year
+        setNextYear(nextYear);
+    }
+      
+        
+      
     
   
 
@@ -68,13 +91,14 @@ export const YearPage = () => {
 
     const handleAddSession = () =>{
       
-      
-      setYearList([...yearList, nextYear]) 
+      const userDocRef = doc(db, 'session', nextYear);
+      setDoc(userDocRef, { teacher : null},); 
       handleDclose();
   
 
     }
 
+   
   return (
     <div className='subjectCon'>
         <div className={`sideBar ${sidetoggle}`}>
@@ -101,7 +125,7 @@ export const YearPage = () => {
           </div>
 
           <div className="widget-container">
-            {yearList.map((year) =>(
+            {sessionList.map((year) =>(
               <Link to={'/exams/class'} style={{textDecoration: 'none'}}>
               <div className="wi" onClick={() => handleStore(year)}>
               <WidgetTemp content={year} />

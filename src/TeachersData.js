@@ -1,9 +1,9 @@
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
-const Teachersdata = async (role) => {
+const Teachersdata = async (role1,role2) => {
   const usersRef = collection(db, "users");
-  const q = query(usersRef, where("role", "==", role));
+  const q = query(usersRef, where("role", "in", [role1, role2]));
   const querySnapshot = await getDocs(q);
   const users = [];
 

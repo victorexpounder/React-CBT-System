@@ -2,6 +2,7 @@ import React from 'react'
 import './LoginSidebar.scss'
 
 export const LoginSidebar = () => {
+  
   return (
     <div className='LoginSidebar'>
         <div className='sidebarCon'>

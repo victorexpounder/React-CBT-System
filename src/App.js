@@ -9,7 +9,7 @@ import {
   RouterProvider,
   Routes,
 } from "react-router-dom";
-import { Children, useContext } from "react";
+import { Children, useContext, useEffect, useState } from "react";
 import { UserContext } from "./contex/UserContext";
 import { AdminSignup } from "./pages/AdminSignup/AdminSignup";
 import CBTComponent from "./pages/Exam/CBT/CBT";
@@ -22,18 +22,26 @@ import { AdminSubjectSelect } from "./pages/AdminExam/AdminSubjectSelect/AdminSu
 import { SubjectSingle } from "./pages/AdminExam/SubjectSinglePage/SubjectSingle";
 import { TermPage } from "./pages/AdminExam/TermPage/TermPage";
 import { SelectExam } from "./pages/Exam/SelectExam/SelectExam";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "./firebase";
+import { useNavigate } from "react-router-dom";
+
 
 
 
 
 function App() {
   const { currentUser } = useContext(UserContext);
-  const RequireAuth = ({children})=>{
-    return currentUser ? children : <Navigate to="/login" />
-  }
-
-
   
+  const RequireAuth = ({ children }) => {
+
+    if (currentUser) {
+      return children; // Render the protected routes
+    } else {
+      return <Navigate to="/login" />; // Navigate to login page if not approved
+    }
+  };
+
   
   return (
     <div className="App">
@@ -68,7 +76,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-      
+    
     </div>
   );
 }

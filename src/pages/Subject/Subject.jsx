@@ -7,6 +7,8 @@ import { Backdrop, Card, CardContent } from '@mui/material'
 import { AccountCard } from '../../components/AccountCard/AccountCard'
 import {SubjectWidget} from '../../components/SubjectWidget/SubjectWidget'
 import { LessSubjectWidget } from '../../components/LessSubjectWidget/LessSubjectWidget'
+import { Userdata } from '../../Userdata'
+
 export const Subject = () => {
 
     const [sidetoggle, setSidetoggle] = useState('hidden')
@@ -28,6 +30,7 @@ export const Subject = () => {
         setOpen(true);
     };
 
+      const userData = Userdata();
   return (
     <div className='subjectCon'>
         <div className={`sideBar ${sidetoggle}`}>
@@ -42,7 +45,8 @@ export const Subject = () => {
         <div className="navbar"><NavBar handleOpen={handleOpen}/></div>
       
       <div className="subjectWidgets">
-      <SubjectWidget/>
+        {userData?.role === 'Teacher'? <LessSubjectWidget/> : <SubjectWidget/>}
+      
        
       </div>
 

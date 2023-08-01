@@ -16,7 +16,7 @@ export const Tablec = () => {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        const teachersData = await Teachersdata("Teacher");
+        const teachersData = await Teachersdata("Teacher","Principal");
         setTeachers(teachersData);
       } catch (error) {
         console.log("Error fetching teachers:", error);

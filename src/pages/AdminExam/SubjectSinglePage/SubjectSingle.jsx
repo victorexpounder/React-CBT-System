@@ -7,6 +7,8 @@ import { NavBar } from '../../../components/NavBar/NavBar'
 import { AccountCard } from '../../../components/AccountCard/AccountCard'
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import './SubjectSingle.scss'
+import { db } from '../../../firebase';
+import { collection, deleteDoc, doc, getDocs, query, setDoc } from 'firebase/firestore';
 
 
 export const SubjectSingle = () => {
@@ -16,6 +18,38 @@ export const SubjectSingle = () => {
   const term =  JSON.parse(localStorage.getItem('term'));
   const grade =  JSON.parse(localStorage.getItem('class'));
   const [examsList, setExamsList] = useState([])
+
+  
+    
+    
+  
+
+  const fetchExams = async () =>{
+    try{
+
+      const examsRef = collection(db, "exams");
+    const querySnapshot = await getDocs(examsRef);
+    const exams = [];
+
+    querySnapshot.forEach((doc) => {
+      const exam = doc.data(); // Call the function to get the actual data
+      exams.push(exam);
+    });
+
+    setExamsList(exams);
+      
+      
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  // Fetch exams from Firebase when the component mounts
+  fetchExams();
+    
+  
+  
 
   //setting selected exam to dummy so we dont get undefined error at the start
   const [selectedExam, setSelectedExam] = useState(
@@ -153,6 +187,7 @@ export const SubjectSingle = () => {
             name: examName,
             public: false,
             questionNo : value,
+            duration : duration,
             questions : [
               
             ]
@@ -172,8 +207,9 @@ export const SubjectSingle = () => {
               }
               )
             }
-            
-          setExamsList([...examsList, newExam]);
+          
+          const userDocRef = doc(db, 'exams', examName);
+          setDoc(userDocRef, newExam); 
           setShowAddDialouge(!showAddDialouge);
           
         }else{
@@ -207,12 +243,17 @@ export const SubjectSingle = () => {
       }
     }
 
-    const handleRemove = (exam) =>{
-      const index = examsList.indexOf(exam);
-      var temp = [...examsList];
-      const x = temp.splice(index, 1);
-      setExamsList(temp);
-      setDeleteExam(null);
+    const handleRemove = async(exam) =>{
+      try{
+        const CollectionRef = collection(db, "exams");
+        const DocRef = doc(CollectionRef, exam.name);
+        await deleteDoc(DocRef);
+        setDeleteExam(null);
+      }
+      catch(error){
+        console.log(error);
+        setDeleteExam(null);
+      }
     }
     
     const handlePublish = (exam) => {

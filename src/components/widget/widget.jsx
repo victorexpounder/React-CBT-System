@@ -4,6 +4,7 @@ import { red } from '@mui/material/colors';
 import { Userdata } from '../../Userdata';
 import Teachersdata from '../../TeachersData';
 import { useEffect, useState } from 'react';
+import { TeacherSubject } from '../../TeacherSubject';
 export const Widget = ({type}) => {
 
     let data;
@@ -12,7 +13,7 @@ export const Widget = ({type}) => {
 
       const fetchTeachers = async () => {
         try {
-          const teachersData = await Teachersdata("Teacher");
+          const teachersData = await Teachersdata("Teacher", "Principal");
           setTeachers(teachersData);
         } catch (error) {
           console.log('Error fetching teachers:', error);
@@ -26,6 +27,19 @@ export const Widget = ({type}) => {
       console.log(teachers);
     const approvedTeachers = teachers?.filter((teacher) => teacher.approved === true);
     const unApprovedTeachers = teachers?.filter((teacher) => teacher.approved === false);
+
+    const [subjects, setSubjects] = useState();
+  
+    const fetchSubjects = async () => {
+      try {
+        const subjectArray = await TeacherSubject();
+        setSubjects(subjectArray);
+      } catch (error) {
+        console.log("Error fetching teachers:", error);
+      }
+    };
+
+    fetchSubjects();
       
 
     switch(type){
@@ -64,7 +78,7 @@ export const Widget = ({type}) => {
         link: "see your Subjects",
         icon: <BookOutlined className='icon' style={{color: "blue", backgroundColor: "rgba(0, 0, 255, 0.2)"}}/>,
         topText: "Total",
-        numbers : userData?.subjects.length
+        numbers : subjects?.length
         };
         break;
       case "examTotal":

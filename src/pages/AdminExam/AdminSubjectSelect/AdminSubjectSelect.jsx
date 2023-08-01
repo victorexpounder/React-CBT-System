@@ -6,6 +6,7 @@ import { NavBar } from '../../../components/NavBar/NavBar'
 import { AccountCard } from '../../../components/AccountCard/AccountCard'
 import { Link } from 'react-router-dom';
 import { WidgetTemp } from '../../../components/ExamsWidget/ExamsWidget';
+import { TeacherSubject } from '../../../TeacherSubject';
 
 
 export const AdminSubjectSelect = () => {
@@ -31,14 +32,20 @@ export const AdminSubjectSelect = () => {
         setOpen(true);
     };
 
-    const [subjectList, setSubjectList] = useState([
-      'English',
-      'Mathematics',
-      'Economics',
-      'Biology',
-      'Chemistry',
+    const [subjects, setSubjects] = useState([]);
+  
+    const fetchSubjects = async () => {
+      try {
+        const subjectArray = await TeacherSubject();
+        setSubjects(subjectArray);
+      } catch (error) {
+        console.log("Error fetching teachers:", error);
+      }
+    };
 
-   ]);
+    fetchSubjects();
+
+    
 
    function handleStore (theclass){
     localStorage.setItem("subject", JSON.stringify(theclass));
@@ -61,7 +68,7 @@ export const AdminSubjectSelect = () => {
             <h1>Subjects</h1>
           </div>
           <div className="widget-container">
-            {subjectList.map((subject) =>(
+            {subjects.map((subject) =>(
               <Link to={'/exams/class/term/subjects/subjectpage'} style={{textDecoration: 'none'}}>
                   <div className="wi" onClick={() => handleStore(subject)}>
                   <WidgetTemp content={subject} />

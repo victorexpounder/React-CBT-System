@@ -20,7 +20,8 @@ export const LoginForm = ({text}) => {
   const [Offline, setOffline] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showNoauth, setShowNoauth] = useState(false);
-  const [message, setMessage] = useState()
+  const [message, setMessage] = useState();
+  const [loading, setLoading] = useState(false);
       function stillonline()
     {
         var x =  navigator.onLine;
@@ -64,16 +65,18 @@ export const LoginForm = ({text}) => {
   const handleLogin = (e) => {
     e.preventDefault();
     stillonline();
+    setLoading(true)
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
         const uid = user.uid;
         const userDocRef = doc(db, "users", uid);
+        setLoading(false);
         const getUserDoc = async () => await getDoc(userDocRef);
         
         getUserDoc().then((userDoc) => {
-          if(!userDoc.exists())
+          if(!userDoc.exists() && userDoc.data().approved)
           {
             navigate('/cbt')
           }else{
@@ -101,6 +104,7 @@ export const LoginForm = ({text}) => {
       })
       .catch((error) => {
         setError(true);
+        setLoading(false);
         // Handle login error
       });
   };
@@ -123,7 +127,7 @@ export const LoginForm = ({text}) => {
         </div>
         {error &&   Offline? <span>You are offline, Please connect to the internet to login</span> :error && <span>Wrong Email Or Password!</span>}
         
-        <button type="submit">Login</button>
+        <button type="submit">{loading? 'Logging You In...' : 'Login'}</button>
       </form>
       <p><a href={text[2]}>{text[1]}</a></p>
       <p><a href={text[5]}>{text[4]}</a></p>

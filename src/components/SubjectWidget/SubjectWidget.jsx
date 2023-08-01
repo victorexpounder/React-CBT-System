@@ -1,31 +1,62 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./SubWidget.scss";
 
 import { Edit, Person } from "@mui/icons-material";
 import { Backdrop, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Tooltip } from "@mui/material";
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import { collection, doc, getDocs, query, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import Teachersdata from "../../TeachersData";
+
 export const SubjectWidget = () => {
   const [subjectList, setSubjectList] = useState([
-    { name: "Math", teacher: "Ms. Smith" },
-    { name: "Science", teacher: "Mr. Johnson" },
-    { name: "English", teacher: "Ms. Lee" },
-    { name: "biology", teacher: "Mr. Tori" },
-    { name: "History", teacher: "Mr. Travis" },
+    ''
   ]);
 
-  const teachersList = [
-    "Ms. Smith",
-    "Mr. Johnson",
-    "Ms. Lee",
-    "Mr. Tori",
-    "Mr. Travis"
-  ]
+  const [teachersList, setTeachersList] = useState('none')
+
+  const subjects = async () => {
+    const usersRef = collection(db, "subjects");
+    const q = query(usersRef);
+    const querySnapshot = await getDocs(q); // Use await to wait for the result
+  
+    const subjectsData = [];
+    querySnapshot.forEach((doc) => {
+      const subjectData = doc.data();
+      // Include the subject name in the subject object
+      const subject = {
+        name: doc.id,
+        ...subjectData,
+      };
+      subjectsData.push(subject);
+    });
+    
+    return subjectsData;
+  };
+
+  const fetchSubjects = async () => {
+    const subjectsData = await subjects();
+    setSubjectList(subjectsData);
+  };
+
+  const fetchTeachers = async () => {
+    const teachers = await Teachersdata('Teacher', 'Principal');
+    setTeachersList(teachers);
+    
+  }
+
+  // Call the fetchSubjects function to populate the subjectList state
+  
+    fetchSubjects();
+    fetchTeachers();
+  
   
   
   const [selectedSubject, setSelectedSubject] = useState(null);
-  const [SelectedTeacher, setSelectedTeacher] = useState('');
-    const handleEditClick = (subjectName, teacher) => {
+  const [SelectedTeacher, setSelectedTeacher] = useState('none');
+    const handleEditClick = (subjectName, teacher, id) => {
     setSelectedSubject(subjectName);
-    setSelectedTeacher(teacher)
+    setSelectedTeacher(teacher + "-" + id)
   };
   const handleClose = () => {
     setSelectedSubject(null);
@@ -35,19 +66,53 @@ export const SubjectWidget = () => {
     const handleChange = (event) => {
       setSelectedTeacher(event.target.value || '');
     };
-    const handleUpdate = (subname) => {
-      const updatedSubjectList = subjectList.map((subject) =>
-      subject.name === subname ? { ...subject, teacher: SelectedTeacher } : subject
-      );
-      setSelectedSubject(null);
-      setSubjectList(updatedSubjectList);
+    const handleUpdate = async(subname) => {
+      
+
+      try {
+        const teacherDetails = SelectedTeacher.split("-");
+        const userDocRef = doc(db, "subjects", subname);
+        
+        // Update the fullname and email fields in Firestore
+        await updateDoc(userDocRef, {
+          teacher: teacherDetails[0],
+          teacherID: teacherDetails[1],
+        });
     
-  };
+        console.log(" updated successfully");
+        setSelectedSubject(null);
+      } catch (error) {
+        console.log("Error updating fullname and email:", error);
+        setSelectedSubject(null);
+      }
+      
+      
+    
+    };
+
+  const addSubject = () =>{
+     const subjectName = prompt('Enter Subject Name');
+     if(subjectName)
+     {
+       const userDocRef = doc(db, 'subjects', subjectName);
+       setDoc(userDocRef, { teacher : null},); 
+      }
+  }
 
   return (
     <div className="container">
       <h1>All Subjects:</h1>
+
+      <div className="addButton">
+            <Tooltip title='Add a new subject' arrow>
+          <Button variant="contained" startIcon={<AddBoxIcon/>} className='dbutton' onClick={addSubject} >
+            Subject
+          </Button>
+            </Tooltip>
+      </div>
+
       <div className="widget-container">
+      
         {subjectList.map((subject) => (
           <div
             key={subject.name}
@@ -55,7 +120,7 @@ export const SubjectWidget = () => {
             
           >
             <Tooltip title="Edit" arrow>
-            <div className="edit" onClick={() => handleEditClick(subject.name, subject.teacher)}>
+            <div className="edit" onClick={() => handleEditClick(subject.name, subject.teacher, subject.teacherID)}>
               <Edit className="editicon"/>
             </div>
             </Tooltip>
@@ -80,13 +145,20 @@ export const SubjectWidget = () => {
                         onChange={handleChange}
                         input={<OutlinedInput label="Teacher" />}
                       >
-                            {teachersList.map((teacher) => (
                             <MenuItem
-                              key={teacher}
-                              value={teacher}
+                              
+                              value='n'
                               
                             >
-                              {teacher}
+                              none
+                            </MenuItem>
+                            {teachersList.map((teacher) => (
+                            <MenuItem
+                              key={teacher.userId}
+                              value={`${teacher.fullname}-${teacher.userId}`}
+                              
+                            >
+                              {teacher.fullname}
                             </MenuItem>
                           ))}
                       </Select>

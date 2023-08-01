@@ -6,8 +6,9 @@ import { UserCard } from "../UserCard/UserCard";
 import React, { useEffect} from "react";
 import Teachersdata from "../../TeachersData";
 import { db } from "../../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, and, or } from "firebase/firestore";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { getAuth, deleteUser } from "firebase/auth";
 
 
 export const Datatable = () => {
@@ -38,12 +39,42 @@ export const Datatable = () => {
       }
     };
 
+    const deleteUserFromFirebaseAndFirestore = async (userId) => {
+      try {
+        // Step 1: Delete the user from Firebase Authentication
+          const auth = getAuth();
+          
+
+          deleteUser(userId).then(() => {
+            // User deleted.
+            alert('user deleted')
+          }).catch((error) => {
+            // An error ocurred
+            // ...
+            alert(error)
+          });
+    
+        // Step 2: Delete the corresponding user document from Firestore
+        const usersCollectionRef = collection(db, "users");
+        const userDocRef = doc(usersCollectionRef, userId);
+        await deleteDoc(userDocRef);
+    
+        console.log("User deleted successfully from both Firebase Authentication and Firestore.");
+      } catch (error) {
+        console.error("Error deleting user:", error);
+      }
+    };
+
+    const handleDelete = (userId) => {
+      deleteUserFromFirebaseAndFirestore(userId);
+    };
+
     const actionColumn =[{field: "action", headerName: "Action", width:200, renderCell: (params)=>{
         return(
             <div className="cellAction">
                 <div className="viewButton" onClick={()=>handleOpen(params.row)}>view</div>
                 <div className={`${params.row.approved? "notApprove" : 'approveButton'}`} onClick={() => handleApprove(params.row.userId, params.row.approved)}>{params.row.approved? 'UnApprove' : 'approve'}</div>
-                <div className="deleteButton">Delete</div>
+                <div className="deleteButton" onClick={() => handleDelete(params.row.userId)}>Delete</div>
             </div>
         )
     } }]
@@ -96,7 +127,7 @@ export const Datatable = () => {
         const fetchTeachers = async () => {
           try {
             const usersRef = collection(db, "users");
-            const q = query(usersRef, where("role", "==", "Teacher"));
+            const q = query(usersRef, where("role", "in", ["Teacher", "Principal"]));
             const querySnapshot = await getDocs(q);
             const users = [];
 

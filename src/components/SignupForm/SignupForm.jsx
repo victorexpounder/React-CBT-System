@@ -20,6 +20,7 @@ export const SignupForm = () => {
     const approved = false;
     const [Offline, setOffline] = useState(false) ;
     const [openSuccess, setOpenSuccess] = useState(false) ;
+    const [loading, setLoading] = useState(false);
       function stillonline()
     {
         var x =  navigator.onLine;
@@ -34,7 +35,7 @@ export const SignupForm = () => {
 
           e.preventDefault();
           stillonline();
-
+          setLoading(true);
 
           createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -48,13 +49,13 @@ export const SignupForm = () => {
             // Create a user document in Firestore
             const userDocRef = doc(db, 'users', uid);
              setDoc(userDocRef, { fullname, role, subjects, approved,created_at: timestamp, email},);
-            console.log('User roles added successfully!');
+            setLoading(false)
             
         })
         .catch((error) => {
             // User sign-up or sign-in failed
             setError(true);
-            
+            setLoading(false);
             // Handle the error appropriately
         });
     }
@@ -70,7 +71,7 @@ export const SignupForm = () => {
         <SelectAutoWidth role={role} setRole={setRole}/>
         <MultipleSelect personName={subjects} setPersonName={setSubjects}/>
         {error &&  Offline? <span>You are Offline signUp needs internet connection</span> : error && <span>Error in creating account</span>}
-        <button type="submit">SignUp</button>
+        <button type="submit">{loading? 'Signing You Up...' : 'SignUp'}</button>
       </form>
       <p><a href='/AdminLogin'>Login to admin portal</a></p>
 
