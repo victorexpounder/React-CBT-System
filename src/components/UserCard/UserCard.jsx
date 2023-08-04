@@ -9,7 +9,7 @@ export const UserCard = ({user}) => {
             <CardContent>
                 <div className="title">Information</div>
                 <div className="details">
-                <Avatar src="https://images.pexels.com/photos/11402832/pexels-photo-11402832.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Remy Sharp" className='avatar' sx={{ width: 100, height: 100 }}/>
+                <Avatar src={user.profilePictureURL} alt="Remy Sharp" className='avatar' sx={{ width: 100, height: 100 }}>{user.fullname.charAt(0)}</Avatar>
                 <div className="detail">
                     <h1 className="itemTitle">{user.fullname}</h1>
                     <div className="detailItem">

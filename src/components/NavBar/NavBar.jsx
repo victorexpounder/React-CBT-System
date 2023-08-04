@@ -2,7 +2,10 @@ import { AccountCircle, DarkModeOutlined, LanguageOutlined, Mail, MailOutline, N
 import './NavBar.scss'
 import { Accordion, Avatar, Badge, Icon, Tooltip } from '@mui/material';
 import Paper from '@mui/material/Paper';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { UserContext } from '../../contex/UserContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 
 
@@ -14,6 +17,16 @@ export const NavBar = ({handleOpen}) => {
     const handleClick = () => {
       setOpen(!open);
     };
+
+    const [userData, setUserData] = useState();
+    const { currentUser } = useContext(UserContext);
+    const userDocRef = doc(db, "users", currentUser.uid);
+    const getUserDoc = async () => await getDoc(userDocRef);
+    
+    getUserDoc().then((userDoc) => {
+         const data = userDoc.data()
+         setUserData(data);
+    })
   
 
   return (
@@ -44,7 +57,7 @@ export const NavBar = ({handleOpen}) => {
           <Tooltip title="Profile" arrow>
           <div className="item" onClick={handleOpen}>
             
-            <Avatar src="https://images.pexels.com/photos/10909254/pexels-photo-10909254.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Remy Sharp" className='avatar'/>
+            <Avatar src={userData?.profilePictureURL} alt={userData?.fullname} className='avatar'> {userData?.fullname.charAt(0)} </Avatar>
             
           </div>
           </Tooltip>

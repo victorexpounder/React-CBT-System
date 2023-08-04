@@ -5,6 +5,9 @@ import { Userdata } from '../../Userdata';
 import Teachersdata from '../../TeachersData';
 import { useEffect, useState } from 'react';
 import { TeacherSubject } from '../../TeacherSubject';
+import { Exams } from '../../Exams';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../../firebase';
 export const Widget = ({type}) => {
 
     let data;
@@ -40,6 +43,43 @@ export const Widget = ({type}) => {
     };
 
     fetchSubjects();
+
+    const [examsList, setExamsList] = useState([]);
+    const [examsOngoing, setExamsOngoing] = useState([]);
+
+  const fetchExams = async () =>{
+    try{
+    const examsRef = collection(db, "exams");
+    const q = query(examsRef, where('subject', 'in', subjects));
+    const qP = query(examsRef, where('subject', 'in', subjects),  where("public", "==", true));
+    const querySnapshot = await getDocs(q);
+    const querySnapshotP = await getDocs(qP);
+    const exams = [];
+    const examsP = [];
+
+    querySnapshot.forEach((doc) => {
+      const exam = doc.data(); // Call the function to get the actual data
+      exams.push(exam);
+    });
+    querySnapshotP.forEach((doc) => {
+      const examP = doc.data(); // Call the function to get the actual data
+      examsP.push(examP);
+    });
+    
+    setExamsList(exams);
+    setExamsOngoing(examsP);
+    
+      
+      
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+
+  // Fetch exams from Firebase when the component mounts
+  fetchExams();
+  
       
 
     switch(type){
@@ -86,7 +126,8 @@ export const Widget = ({type}) => {
         title: "EXAMS",
         link: "see all your exams",
         icon: <ComputerOutlined className='icon' style={{color: "blue", backgroundColor: "rgba(0, 0, 255, 0.2)"}}/>,
-        topText: "Total"
+        topText: "Total",
+        numbers : examsList.length
         };
         break;
       case "examOngoing":
@@ -96,6 +137,7 @@ export const Widget = ({type}) => {
         icon: <ComputerOutlined className='icon' style={{color: "green", backgroundColor: "rgba(0, 255, 0, 0.2)"}}/>,
         topText: "Ongoing",
         color: "positive",
+        numbers : examsOngoing.length
         };
         break;
         default:
@@ -105,7 +147,7 @@ export const Widget = ({type}) => {
     <div className='widget'>
         <div className="right">
           <span className="title">{data.title}</span>
-          <span className="counter">{data.numbers}</span>
+          <span className="counter">{data.numbers? data.numbers : "___"}</span>
           <span className="link">{data.link}</span>
         </div>
         <div className="left">

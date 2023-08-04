@@ -1,12 +1,13 @@
-import React, { useState, useRef, useContext } from "react";
-import { Avatar, Tooltip } from "@mui/material"; 
+import React, { useState, useRef, useContext, useEffect } from "react";
+import { Avatar, Snackbar, Tooltip } from "@mui/material"; 
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import "./ProfileContent.scss";
 import { Edit } from "@mui/icons-material";
 import { updateEmail } from "firebase/auth";
 import { UserContext } from "../../contex/UserContext";
-import { db } from "../../firebase";
+import { auth, db, storage } from "../../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export const ProfileContent = () => {
   const [userData, setUserData] = useState();
@@ -19,11 +20,26 @@ export const ProfileContent = () => {
        setUserData(data);
   })
 
-  const [Updateemail, setUpdateEmail] = useState();
-  const [Updatename, setUpdateName] = useState();
+  const [Updateemail, setUpdateEmail] = useState(userData?.email);
+  const [Updatename, setUpdateName] = useState(userData?.fullname);
   const [showNameInput, setshowNameInput] = useState(false);
-  const [profilePicture, setProfilePicture] = useState(null);
+  const [profileUploading, setProfileUploading] = useState(false);
+  const [profileUploaded, setProfileUploaded] = useState(false);
+  const [profileFailed, setProfileFailed] = useState(false);
+  const [nameUpdated, setNameUpdated] = useState(false);
+  const [nameUpdatedError, setNameUpdatedError] = useState(false);
   const fileInputRef = useRef(null);
+  
+  useEffect(() => {
+    // This effect will run whenever userData changes
+    // Update Updatename with the current fullname value from userData
+    setUpdateName(userData?.fullname);
+  }, [userData?.fullname]);
+  useEffect(() => {
+    // This effect will run whenever userData changes
+    // Update Updatename with the current fullname value from userData
+    setUpdateEmail(userData?.email);
+  }, [userData?.email]);
 
   function handleNameChange(event) {
     setUpdateName(event.target.value);
@@ -32,20 +48,33 @@ export const ProfileContent = () => {
     setUpdateEmail(event.target.value);
   }
 
-  const handleNameSave = async () => {
+  const handleNameSave = async (imgURL) => {
     try {
       const userDocRef = doc(db, "users", currentUser.uid);
       
       // Update the fullname and email fields in Firestore
-      await updateDoc(userDocRef, {
-        fullname: Updatename,
-        email: Updateemail,
-      });
-  
-      console.log("Fullname and email updated successfully!");
+      if(imgURL){
+        await updateDoc(userDocRef, {
+          profilePictureURL : imgURL
+        });
+        console.log("image added to database successfully");
+      }else{
+        // Update the user's email in Firebase Authentication
+      await updateEmail(auth.currentUser, Updateemail);
+
+      // Update the email field in Firestore 
+        await updateDoc(userDocRef, {
+          fullname: Updatename,
+          email: Updateemail,
+        });
+        console.log("Fullname and email updated successfully!");
+        setNameUpdated(true);
+      }
+      
      setshowNameInput(false)
     } catch (error) {
       console.log("Error updating fullname and email:", error);
+      setNameUpdatedError(true)
     }
   };
 
@@ -53,8 +82,24 @@ export const ProfileContent = () => {
     setshowNameInput(true);
   }
 
-  function handleProfilePictureChange(event) {
-    setProfilePicture(URL.createObjectURL(event.target.files[0]));
+  const handleProfilePictureChange = async(event) =>{
+    setProfileUploading(true);
+    const file = event.target.files[0];
+    const fileType = file.type.split("/")[1]; // Get the file extension
+    const storageRef = ref(storage, `profilePictures/${currentUser.uid}`);
+  
+  uploadBytes(storageRef, file)
+    .then(() => getDownloadURL(storageRef))
+    .then((downloadURL) => {
+      handleNameSave(downloadURL); // Set the profile picture URL state with the download URL
+      setProfileUploading(false);
+      setProfileUploaded(true);
+    })
+    .catch((error) => {
+      console.log("Error uploading profile picture:", error);
+      setProfileUploading(false);
+      setProfileFailed(true);
+    });
   }
 
   function handleAvatarClick() {
@@ -97,7 +142,7 @@ export const ProfileContent = () => {
       <div className="profile-card">
       <Tooltip title="upload profile">
         <Avatar
-          src={profilePicture}
+          src={userData?.profilePictureURL}
           alt={userData?.fullname}
           style={avatarStyle}
           className="profile-avatar"
@@ -145,6 +190,7 @@ export const ProfileContent = () => {
           type="email"
           id="email"
           value={Updateemail}
+          defaultValue={userData.email}
           onChange={handleEmailChange}
           className="form-input"
         />
@@ -165,7 +211,34 @@ export const ProfileContent = () => {
         }
         </form>
         
-      
+        <Snackbar
+          open={profileUploading}
+          message="Image Uploading..."
+        />
+        <Snackbar
+          open={profileUploaded}
+          autoHideDuration={6000}
+          onClose={() => setProfileUploaded(false)}
+          message="Profile Picture Uploaded, might take a minute to reflect or refresh page"
+        />
+        <Snackbar
+          open={profileFailed}
+          autoHideDuration={6000}
+          onClose={() => setProfileFailed(false)}
+          message="ooppss.. Error Uploading Profile Picture"
+        />
+        <Snackbar
+          open={nameUpdated}
+          autoHideDuration={6000}
+          onClose={() => setNameUpdated(false)}
+          message="Name and Email Successfully changed"
+        />
+        <Snackbar
+          open={nameUpdatedError}
+          autoHideDuration={8000}
+          onClose={() => setNameUpdatedError(false)}
+          message="OOPPSS.. Name and Email change failed try a re-login to see if it resolves the issuse"
+        />
     </div>
   );
 };

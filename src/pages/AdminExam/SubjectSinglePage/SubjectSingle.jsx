@@ -1,14 +1,15 @@
 //code
 import React, { useEffect, useState } from 'react'
 import { SideBar } from '../../../components/SideBar/SideBar'
-import { Backdrop, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, FormControl, Input, InputLabel, MenuItem, Paper, Select, Slide, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip} from '@mui/material'
-import { ArrowBack, Article, DeleteForever, Edit, Label, Menu, Padding, Public, PublicOff, Publish, Save } from "@mui/icons-material";
+import { Alert, Backdrop, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, FormControl, Input, InputLabel, MenuItem, Paper, Select, Slide, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip} from '@mui/material'
+import { ArrowBack, Article, DeleteForever, Edit, Label, Menu, Padding, Public, PublicOff, Publish, Save, Unpublished } from "@mui/icons-material";
 import { NavBar } from '../../../components/NavBar/NavBar'
 import { AccountCard } from '../../../components/AccountCard/AccountCard'
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import './SubjectSingle.scss'
 import { db } from '../../../firebase';
-import { collection, deleteDoc, doc, getDocs, query, setDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, query, setDoc, updateDoc } from 'firebase/firestore';
+import { Exams } from '../../../Exams';
 
 
 export const SubjectSingle = () => {
@@ -18,6 +19,7 @@ export const SubjectSingle = () => {
   const term =  JSON.parse(localStorage.getItem('term'));
   const grade =  JSON.parse(localStorage.getItem('class'));
   const [examsList, setExamsList] = useState([])
+  const [loading, setLoading] = useState(true);
 
   
     
@@ -27,17 +29,10 @@ export const SubjectSingle = () => {
   const fetchExams = async () =>{
     try{
 
-      const examsRef = collection(db, "exams");
-    const querySnapshot = await getDocs(examsRef);
-    const exams = [];
-
-    querySnapshot.forEach((doc) => {
-      const exam = doc.data(); // Call the function to get the actual data
-      exams.push(exam);
-    });
+    const exams = await Exams(null, year,term,grade,subject);
 
     setExamsList(exams);
-      
+    setLoading(false);
       
     }
     catch(error){
@@ -45,8 +40,16 @@ export const SubjectSingle = () => {
     }
   }
 
-  // Fetch exams from Firebase when the component mounts
-  fetchExams();
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchExams();
+    };
+
+    fetchData();
+    const intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
+    return () => clearInterval(intervalId); // Clear the interval on component unmount
+  }, []);
+ 
     
   
   
@@ -151,7 +154,7 @@ export const SubjectSingle = () => {
 
   const [qIndex, setQIndex] = useState(0);
   const [showResult, setShowResult] = useState(false);
-  const [duration, setDuration] = useState(0)
+  const [duration, setDuration] = useState(1800)
   
 
 
@@ -188,6 +191,10 @@ export const SubjectSingle = () => {
             public: false,
             questionNo : value,
             duration : duration,
+            session: year,
+            term : term,
+            class: grade,
+            subject: subject,
             questions : [
               
             ]
@@ -197,18 +204,18 @@ export const SubjectSingle = () => {
           {
             newExam.questions.push(
               {
-                question : 'what is rule of law',
+                question : '',
                 options : [
-                  {optionText: 'Rule that guides people', isCorrect: false},
-                  {optionText: 'Organization of people in the society ', isCorrect: false},
-                  {optionText: 'Equality before the law', isCorrect: false},
-                  {optionText: 'Rights of minority', isCorrect: false}
+                  {optionText: '', isCorrect: false},
+                  {optionText: '', isCorrect: false},
+                  {optionText: '', isCorrect: false},
+                  {optionText: '', isCorrect: false}
                 ]
               }
               )
             }
           
-          const userDocRef = doc(db, 'exams', examName);
+          const userDocRef = doc(db, 'exams', year+term+grade+subject+examName);
           setDoc(userDocRef, newExam); 
           setShowAddDialouge(!showAddDialouge);
           
@@ -243,10 +250,10 @@ export const SubjectSingle = () => {
       }
     }
 
-    const handleRemove = async(exam) =>{
+    const handleRemove = async() =>{
       try{
         const CollectionRef = collection(db, "exams");
-        const DocRef = doc(CollectionRef, exam.name);
+        const DocRef = doc(CollectionRef, year+term+grade+subject+deleteExam.name);
         await deleteDoc(DocRef);
         setDeleteExam(null);
       }
@@ -255,19 +262,25 @@ export const SubjectSingle = () => {
         setDeleteExam(null);
       }
     }
+
+    const handledClose = () =>{
+      setDeleteExam(null);
+    }
     
-    const handlePublish = (exam) => {
-      setExamsList((prevList) => {
-        return prevList.map((item) => {
-          if (item.name === exam.name) {
-            return {
-              ...item,
-              public: !item.public
-            };
-          }
-          return item;
+    const handlePublish = async(exam) => {
+      try{
+        const userDocRef = doc(db, "exams", year+term+grade+subject+exam.name);
+      
+        // Update the fullname and email fields in Firestore
+        await updateDoc(userDocRef, {
+          public: !exam.public,
+          
         });
-      });
+  
+      }catch(error){
+        console.log(error);
+      }
+
     };
 
     const handleQnoInputChange = (event) => {
@@ -330,12 +343,24 @@ export const SubjectSingle = () => {
       
     }
 
-    const handlequestionChange = (event) =>{
-      const text = event.target.value;
-      const updatedArray = [...qValue];
-      updatedArray[qIndex] = text
-      setQvalue(updatedArray);
+    const handlequestionChange = async(event) =>{
+      try{
+        const text = event.target.value;
+        const updatedArray = [...qValue];
+        updatedArray[qIndex] = text
+        setQvalue(updatedArray);
+        const userDocRef = doc(db, "exams", year+term+grade+subject+selectedExam.name);
+      
+      // Update the fullname and email fields in Firestore
+      await updateDoc(userDocRef, {
+        
+      });
+  
+      }catch(error){
+
+      }
     }
+
 
     var handleNP = (operation) =>{
       if (operation === 'next') {
@@ -352,11 +377,67 @@ export const SubjectSingle = () => {
     }
 
    const handleExamSelect = () =>{
-      
-      
       setExamOpen(true)
       console.log(selectedExam);
     }
+
+    const [saveSuccess, setSaveSuccess] = useState(false);
+    const [saveFailure, setSaveFailure] = useState(false);
+    const [saveLoading, setSaveLoading] = useState(false);
+    
+
+    const updateQuestionInFirestore = async (questionIndex) => {
+      
+    try {
+      const userDocRef = doc(
+        db,
+        "exams",
+        year + term + grade + subject + selectedExam.name
+      );
+
+      // Get a shallow copy of the questions array to modify it before updating in Firestore
+      const updatedQuestions = [...selectedExam.questions];
+      const selectedQuestion = updatedQuestions[questionIndex];
+
+      // Update the question details with the new data
+      selectedQuestion.question = qValue[questionIndex];
+
+      // Update options for the selected question
+      for (let i = 0; i < 4; i++) {
+        selectedQuestion.options[i].optionText = opValue[questionIndex][i];
+        selectedQuestion.options[i].isCorrect = opSelectValue[questionIndex][i];
+      }
+
+      // Update the modified questions array in Firestore
+      await updateDoc(userDocRef, {
+        questions: updatedQuestions,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+   const handleSave = async () => {
+    setSaveLoading(true);
+    try {
+      // Loop through each question and update its details in Firestore
+      for (let i = 0; i < selectedExam.questions.length; i++) {
+        await updateQuestionInFirestore(i);
+      }
+
+      setSaveLoading(false);
+      setSaveSuccess(true);
+      setExamOpen(false);
+      // Optionally, you can set some feedback to let the user know the data was saved successfully.
+      // For example, set a state variable to display a success message.
+      // setSaveSuccess(true);
+    } catch (error) {
+      // Handle the error if the update fails.
+      console.log(error);
+      setSaveLoading(false);
+      setSaveFailure(true);
+    }
+  };
   
 
   return (
@@ -411,9 +492,13 @@ export const SubjectSingle = () => {
                         </Fab>
                         </Tooltip>
 
-                        <Tooltip title="Publish">
+                        <Tooltip title={ selectedExam.public? "Publish" : "Unpublish"}>
                           <Fab color="primary" aria-label="edit" size='small'>
+                            {selectedExam.public? 
                           <Publish onClick={() => handlePublish(exam)}/>
+                          :
+                          <Unpublished onClick={() => handlePublish(exam)}/>
+                          }
                           </Fab>
                         </Tooltip>
 
@@ -436,7 +521,7 @@ export const SubjectSingle = () => {
 
                 {(examsList.length === 0 && !examOpen && !showResult &&
                   <div className="unavailable">
-                  <h1>No Exams Available</h1>
+                  {loading? <h1>Loading....</h1> :<h1>No Exams Available</h1>}
                   
                   </div>
                   )}
@@ -449,8 +534,8 @@ export const SubjectSingle = () => {
                       <ArrowBack onClick={()=> setExamOpen(false)} sx={{cursor:'pointer'}}/>
                       <h2>{qIndex + 1}/{selectedExam.questionNo}</h2>
                       <Tooltip title="Add an exam" arrow>
-                        <Button variant="contained" startIcon={<Save/>} className={`dbutton ${selectedExam? 'disabled' : ''}`} onClick={() => setExamOpen(false)}>
-                          Save
+                        <Button variant="contained" startIcon={<Save/>} className={`dbutton ${selectedExam? 'disabled' : ''}`} onClick={handleSave}>
+                          {saveLoading? <CircularProgress /> : "Save"}
                         </Button>
                         </Tooltip>
                       </div>
@@ -503,9 +588,23 @@ export const SubjectSingle = () => {
                           Next
                         </Button>
                       </div>
+
+                      
                     </div>
                  )}
                   
+                  <Snackbar open={saveSuccess} autoHideDuration={6000} onClose={()=>{setSaveSuccess(false)}}>
+                        <Alert onClose={()=>{setSaveSuccess(false)}} severity="success" sx={{ width: '100%' }}>
+                          Questions Saved Succesfully 
+                        </Alert>
+                      </Snackbar>
+
+                      <Snackbar open={saveFailure} autoHideDuration={6000} onClose={()=>{setSaveFailure(false)}}>
+                        <Alert onClose={()=>{setSaveFailure(false)}} severity="error" sx={{ width: '100%' }}>
+                          An Error Occcured, Save Unsuccessful
+                        </Alert>
+                      </Snackbar>
+
                 {(showResult &&
                   <div className="resultCon">
                     <ArrowBack onClick={()=> setShowResult(false)} sx={{cursor:'pointer'}}/>
@@ -611,7 +710,7 @@ export const SubjectSingle = () => {
               <label htmlFor="select">Enter duration</label>
             <select value={duration} name='select' style={{padding: 10, border: 'none',  borderBottom: '1px solid #888'}} onChange={(e)=> setDuration(e.target.value)}>
               <option value={1800}>30 mins</option>
-              <option value={3600} selected>1 hr</option>
+              <option value={3600}>1 hr</option>
               <option value={5400}>1hr 30mins</option>
               <option value={7200}>2hrs </option>
               <option value={9000}>2hrs 30mins</option>
@@ -638,7 +737,7 @@ export const SubjectSingle = () => {
           open={deleteExam? true : false}
           TransitionComponent={Transition}
           keepMounted
-          onClose={()=> setDeleteExam(null)}
+          onClose={handledClose}
           aria-describedby="alert-dialog-slide-description"
         >
           <DialogTitle>{`Are you sure you want to delete ${deleteExam.name}`}</DialogTitle>
@@ -648,8 +747,8 @@ export const SubjectSingle = () => {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => handleRemove(deleteExam)}>Yes</Button>
-            <Button onClick={()=> setDeleteExam(null)}>No</Button>
+            <Button onClick={handleRemove}>Yes</Button>
+            <Button onClick={handledClose}>No</Button>
           </DialogActions>
         </Dialog>
         )}
