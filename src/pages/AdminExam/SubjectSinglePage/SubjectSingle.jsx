@@ -20,6 +20,8 @@ export const SubjectSingle = () => {
   const grade =  JSON.parse(localStorage.getItem('class'));
   const [examsList, setExamsList] = useState([])
   const [loading, setLoading] = useState(true);
+  const [publishSucess, setPublishSuccess] = useState(false);
+
 
   
     
@@ -276,7 +278,7 @@ export const SubjectSingle = () => {
           public: !exam.public,
           
         });
-  
+        setPublishSuccess(true);
       }catch(error){
         console.log(error);
       }
@@ -492,12 +494,12 @@ export const SubjectSingle = () => {
                         </Fab>
                         </Tooltip>
 
-                        <Tooltip title={ selectedExam.public? "Publish" : "Unpublish"}>
+                        <Tooltip title={ exam.public? "Unpublish" : "Publish"}>
                           <Fab color="primary" aria-label="edit" size='small'>
-                            {selectedExam.public? 
-                          <Publish onClick={() => handlePublish(exam)}/>
-                          :
+                            {exam.public? 
                           <Unpublished onClick={() => handlePublish(exam)}/>
+                          :
+                          <Publish onClick={() => handlePublish(exam)}/>
                           }
                           </Fab>
                         </Tooltip>
@@ -512,8 +514,16 @@ export const SubjectSingle = () => {
                     </div>
                     
                   ))}
+
+                    <Snackbar open={publishSucess} autoHideDuration={6000} onClose={() => setPublishSuccess(false)}>
+                      <Alert onClose={() => setPublishSuccess(false)} severity={selectedExam.public? "info" : "success"} sx={{ width: '100%' }}>
+                      {selectedExam.public? "Exam Unpublished" : " Exam Published Successfully"}
+                      </Alert>
+                    </Snackbar>
+
                </div>
 
+                
                     
 
 

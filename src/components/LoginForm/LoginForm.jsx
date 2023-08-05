@@ -49,6 +49,10 @@ export const LoginForm = ({text}) => {
       .then(() => {
         // Remove the user from localStorage
         localStorage.removeItem("currentUser");
+        localStorage.removeItem("subject");
+        localStorage.removeItem("term");
+        localStorage.removeItem("class");
+        localStorage.removeItem("session");
         // Other logout logic
       })
       .catch((error) => {
@@ -76,9 +80,9 @@ export const LoginForm = ({text}) => {
         const getUserDoc = async () => await getDoc(userDocRef);
         
         getUserDoc().then((userDoc) => {
-          if(!userDoc.exists() && userDoc.data().approved)
+          if(!userDoc.exists())
           {
-            navigate('/cbt')
+            navigate('/selectExam')
           }else{
             if(text[0]!=='Login To Admin Portal'){
               setMessage('Seems you are trying to login in with an admin account, navigate to admin login page');

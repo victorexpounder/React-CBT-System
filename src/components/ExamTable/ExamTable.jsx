@@ -115,7 +115,7 @@ export const ExamTable = () => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {examsList.map((row) => (
+        {examsOngoing.map((row) => (
           <TableRow
             key={row.id}
           >

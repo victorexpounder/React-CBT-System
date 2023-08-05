@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { SideBar } from '../../../components/SideBar/SideBar'
 import { Backdrop} from '@mui/material'
 import { Menu } from "@mui/icons-material";
@@ -7,6 +7,9 @@ import { AccountCard } from '../../../components/AccountCard/AccountCard'
 import { Link } from 'react-router-dom';
 import { WidgetTemp } from '../../../components/ExamsWidget/ExamsWidget';
 import { TeacherSubject } from '../../../TeacherSubject';
+import { UserContext } from '../../../contex/UserContext';
+import { collection, doc, getDoc, getDocs, query } from 'firebase/firestore';
+import { db } from '../../../firebase';
 
 
 export const AdminSubjectSelect = () => {
@@ -33,6 +36,9 @@ export const AdminSubjectSelect = () => {
     };
 
     const [subjects, setSubjects] = useState([]);
+    const [subjectList, setSubjectList] = useState([
+      ''
+    ]);
   
     const fetchSubjects = async () => {
       try {
@@ -43,8 +49,39 @@ export const AdminSubjectSelect = () => {
       }
     };
 
-    fetchSubjects();
+    const subjectsD = async () => {
+      const usersRef = collection(db, "subjects");
+      const q = query(usersRef);
+      const querySnapshot = await getDocs(q); // Use await to wait for the result
+    
+      const subjectsData = [];
+      querySnapshot.forEach((doc) => {
+        
+        const subject = doc.id;
+     
+        subjectsData.push(subject);
+      });
+      
+      return subjectsData;
+    };
 
+    const fetchSubjectsD = async () => {
+      const subjectsData = await subjectsD();
+      setSubjectList(subjectsData);
+    };
+
+    fetchSubjects();
+    fetchSubjectsD();
+
+    const [userData, setUserData] = useState();
+    const { currentUser } = useContext(UserContext);
+    const userDocRef = doc(db, "users", currentUser.uid);
+    const getUserDoc = async () => await getDoc(userDocRef);
+    
+    getUserDoc().then((userDoc) => {
+         const data = userDoc.data()
+         setUserData(data);
+    })
     
 
    function handleStore (theclass){
@@ -67,7 +104,19 @@ export const AdminSubjectSelect = () => {
           <div className="title">
             <h1>Subjects</h1>
           </div>
-          <div className="widget-container">
+          {userData?.role === "Director"?
+
+            <div className="widget-container">
+            {subjectList.map((subject) =>(
+              <Link to={'/exams/class/term/subjects/subjectpage'} style={{textDecoration: 'none'}}>
+                  <div className="wi" onClick={() => handleStore(subject)}>
+                  <WidgetTemp content={subject} />
+                  </div>
+                  </Link>
+                  ))}
+            </div>
+            :
+            <div className="widget-container">
             {subjects.map((subject) =>(
               <Link to={'/exams/class/term/subjects/subjectpage'} style={{textDecoration: 'none'}}>
                   <div className="wi" onClick={() => handleStore(subject)}>
@@ -76,6 +125,8 @@ export const AdminSubjectSelect = () => {
                   </Link>
                   ))}
           </div>
+          }
+          
         </div>
         <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}

@@ -63,7 +63,7 @@ export const Home = () => {
           
         </div>
         <div className="listContainer">
-          <div className="listTitle">Latest Registered Teachers</div>
+          <div className="listTitle"> {userData?.role === 'Director'? "Latest Registered Teachers": "Ongoing Exams"} </div>
           {userData?.role === 'Director'? <Tablec/> : <ExamTable/>}
            
         </div>
