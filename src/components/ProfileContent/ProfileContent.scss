@@ -80,6 +80,9 @@
       border-radius: 5px;
       width: 100%;
       max-width: 800px;
+      @media (max-width:800px) {
+        padding: 0;
+      }
   
       .profile-avatar {
         width: 200px;

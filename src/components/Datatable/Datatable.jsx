@@ -182,6 +182,7 @@ export const Datatable = () => {
         }}
         pageSizeOptions={[5, 10]}
         
+        className="dataTableCont"
       />
        {open &&
         <div className="card">

@@ -48,13 +48,7 @@ export const NavBar = ({handleOpen}) => {
             <LanguageOutlined className='icon'/>
             English
           </div>
-          <Tooltip title="Notifications" arrow>
-          <div className="item" onClick={handleClick}>
-            <Badge color="secondary" badgeContent={3}>
-              <NotificationsOutlined />
-            </Badge>
-          </div>
-          </Tooltip>
+          
 
           <Tooltip title="Light/Dark mode" arrow>
           <div className="item">

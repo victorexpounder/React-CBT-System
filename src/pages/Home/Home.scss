@@ -27,6 +27,8 @@
         }
         @media (max-width: 800px) {
             width: 100%;
+            margin: 0;
+            padding: 0;
         }
       }
    }
@@ -65,10 +67,21 @@
             50% {transform: translateX(-1016px)}
             100% {display: none}
       }
-      .widgets{
-        flex-direction: column;
-        width: 100%;
-      }
+      
       
    }
+}
+@media (max-width: 800px) {
+    .home{
+        .homeContainer{
+
+            .widgets{
+                flex-direction: column;
+                gap: 10px;
+                padding: 30px;
+                justify-self: center;
+                align-self: center;
+            }
+        }
+    }
 }

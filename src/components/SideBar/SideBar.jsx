@@ -91,10 +91,7 @@ export const SideBar = () => {
                     <span>Exams</span>
                 </li>
                 </Link>
-                <li>
-                    <BarChart className='icon'/>
-                    <span>Stats</span>
-                </li>
+                
                 <p className="title">ACCOUNT</p>
                 <Link to={'/profile'} style={{textDecoration: 'none'}}>
                 <li>
@@ -141,10 +138,7 @@ export const SideBar = () => {
                     <span>Exams</span>
                 </li>
                 </Link>
-                <li>
-                    <BarChart className='icon'/>
-                    <span>Stats</span>
-                </li>
+                
                 <p className="title">ACCOUNT</p>
                 <Link to={'/profile'} style={{textDecoration: 'none'}}>
                 <li>

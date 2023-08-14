@@ -56,10 +56,13 @@
     .card{
         
     }
-    @media (max-width: 800px) {
-        width:450px;
-        
-        
-        
+}
+@media (max-width: 800px) {
+    .datatable{
+        padding: 5px;
+        .dataTableCont{
+            width: 100%;
+        }
     }
+    
 }
