@@ -68,7 +68,7 @@ export const SignupForm = () => {
         <input type="text" placeholder="Enter Fullname" onChange={e=>setfullname(e.target.value)} />
         <input type="email" placeholder="Enter Email" onChange={e=>setEmail(e.target.value)} />
         <input type="password" placeholder="Enter Password" onChange={e=>setPassword(e.target.value)} />
-        <SelectAutoWidth role={role} setRole={setRole}/>
+        <SelectAutoWidth role={role} setRole={setRole} />
         <MultipleSelect personName={subjects} setPersonName={setSubjects}/>
         {error &&  Offline? <span>You are Offline signUp needs internet connection</span> : error && <span>Error in creating account</span>}
         <button type="submit">{loading? 'Signing You Up...' : 'SignUp'}</button>

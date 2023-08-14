@@ -6,18 +6,21 @@ import { Skeleton } from '@mui/material';
 
 
 export const LessSubjectWidget = () => {
-  const [subjects, setSubjects] = useState();
-  
-    const fetchTeachers = async () => {
-      try {
-        const subjectArray = await TeacherSubject();
-        setSubjects(subjectArray);
-      } catch (error) {
-        console.log("Error fetching teachers:", error);
-      }
-    };
 
-    fetchTeachers();
+  const subjects = TeacherSubject();
+  // const [subjects, setSubjects] = useState();
+  
+  //   const fetchTeachers = async () => {
+  //     try {
+  //       const subjectArray = await TeacherSubject();
+  //       setSubjects(subjectArray);
+  //     } catch (error) {
+  //       console.log("Error fetching teachers:", error);
+  //     }
+  //   };
+
+
+  //   fetchTeachers();
   
     
     

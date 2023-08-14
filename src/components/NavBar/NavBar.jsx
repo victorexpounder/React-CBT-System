@@ -2,9 +2,9 @@ import { AccountCircle, DarkModeOutlined, LanguageOutlined, Mail, MailOutline, N
 import './NavBar.scss'
 import { Accordion, Avatar, Badge, Icon, Tooltip } from '@mui/material';
 import Paper from '@mui/material/Paper';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contex/UserContext';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase';
 
 
@@ -20,13 +20,20 @@ export const NavBar = ({handleOpen}) => {
 
     const [userData, setUserData] = useState();
     const { currentUser } = useContext(UserContext);
-    const userDocRef = doc(db, "users", currentUser.uid);
-    const getUserDoc = async () => await getDoc(userDocRef);
-    
-    getUserDoc().then((userDoc) => {
-         const data = userDoc.data()
-         setUserData(data);
-    })
+    useEffect(() => {
+      // Set up the real-time listener for user data
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const unsubscribe = onSnapshot(userDocRef, (userDoc) => {
+        const data = userDoc.data();
+        setUserData(data);
+      });
+  
+      // Clean up the listener when the component unmounts
+      return () => {
+        unsubscribe();
+      };
+    }, [currentUser.uid]);
+  
   
 
   return (
@@ -55,7 +62,7 @@ export const NavBar = ({handleOpen}) => {
           </div>
           </Tooltip>
           <Tooltip title="Profile" arrow>
-          <div className="item" onClick={handleOpen}>
+          <div className="item" onClick={()=>handleOpen()}>
             
             <Avatar src={userData?.profilePictureURL} alt={userData?.fullname} className='avatar'> {userData?.fullname.charAt(0)} </Avatar>
             

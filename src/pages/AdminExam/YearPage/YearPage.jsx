@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SideBar } from '../../../components/SideBar/SideBar'
 import { Backdrop, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide, Tooltip} from '@mui/material'
 import { Delete, Menu } from "@mui/icons-material";
@@ -8,7 +8,7 @@ import { WidgetTemp } from '../../../components/ExamsWidget/ExamsWidget';
 import './YearPage.scss';
 import { Link } from 'react-router-dom'
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import { collection, doc, getDocs, query, setDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, onSnapshot, query, setDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -49,35 +49,48 @@ export const YearPage = () => {
 
     const [sessionList, setSessionList] = useState([]);
     const [nextYear, setNextYear] = useState('');
-    const fetchSubjects = async () =>{
-      try{
-
-        const sessionRef = collection(db, "session");
-        const q = query(sessionRef);
-        const querySnapshot = await getDocs(q);
+    const fetchSubjects = () => {
+      const sessionRef = collection(db, "session");
+      const q = query(sessionRef);
+    
+      // Set up a real-time listener using onSnapshot
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const sessions = [];
-        
+    
         querySnapshot.forEach((doc) => {
           const session = doc.id;
           sessions.push(session);
-        })
+        });
+        
         setSessionList(sessions);
         getNextYear();
-        
-      }
-      catch(error){
-        console.log(error);
-      }
-    }
-
-    fetchSubjects();
+      });
+    
+      // Clean up the listener when the component unmounts
+      return () => {
+        unsubscribe();
+      };
+    };
+    
+    // Call the fetchSubjects function to populate the sessionList state
+    useEffect(() => {
+      const unsubscribe = fetchSubjects();
+    
+      // Clean up the listener when the component unmounts
+      return () => {
+        unsubscribe();
+      };
+    }, []);
+    
     
     const getNextYear = () =>{
+      if (sessionList.length > 0) {
         const lastYear =  sessionList[sessionList.length - 1];
         const lastYearParts = lastYear.split('-'); // Split the year into two parts
         const nextYearPart = parseInt(lastYearParts[0]) + 2; // Increment the second part of the year
         const nextYear = `${lastYearParts[1]}-${nextYearPart}`; // Construct the next year
         setNextYear(nextYear);
+      }
     }
       
         

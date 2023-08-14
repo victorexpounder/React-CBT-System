@@ -14,16 +14,14 @@ export const Tablec = () => {
   const [teachers, setTeachers] = useState([]);
 
   useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const teachersData = await Teachersdata("Teacher","Principal");
-        setTeachers(teachersData);
-      } catch (error) {
-        console.log("Error fetching teachers:", error);
-      }
-    };
+    const unsubscribe = Teachersdata("Teacher", "Principal", (users) => {
+      setTeachers(users);
+    });
 
-    fetchTeachers();
+    // Clean up the subscription when the component unmounts
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   let tableHead = ["FullName", "ID", "Status", "Date"];

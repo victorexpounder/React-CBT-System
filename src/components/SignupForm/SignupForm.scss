@@ -28,8 +28,8 @@
                 height: 50px;
                 margin: 10px;
                 border: none;
-                border-radius: 20px;
-                background-color: #f3f3f4;
+                border-radius: 5px;
+                border: 0.5px solid;
                 color: black;
                 font-size: 18px;
                 padding-left: 20px;
@@ -93,4 +93,18 @@
     @media only screen and (max-width: 768px) {
       width: 100%;
     }
+}
+
+@media (max-width: 800px) {
+  .SignupForm{
+    padding: 0;
+    .logincon{
+      padding: 0;
+      
+      form{
+        
+        margin: 0;
+      }
+    }
+  }
 }

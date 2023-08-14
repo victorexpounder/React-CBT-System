@@ -6,7 +6,7 @@ import { UserCard } from "../UserCard/UserCard";
 import React, { useEffect} from "react";
 import Teachersdata from "../../TeachersData";
 import { db } from "../../firebase";
-import { doc, getDoc, updateDoc, deleteDoc, and, or } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, and, or, onSnapshot } from "firebase/firestore";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { getAuth, deleteUser } from "firebase/auth";
 
@@ -124,13 +124,13 @@ export const Datatable = () => {
       ]);
       
 
-        const fetchTeachers = async () => {
-          try {
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, where("role", "in", ["Teacher", "Principal"]));
-            const querySnapshot = await getDocs(q);
+      const fetchTeachers = () => {
+        // Set up a real-time listener using onSnapshot
+        const unsubscribe = onSnapshot(
+          query(collection(db, "users"), where("role", "in", ["Teacher", "Principal"])),
+          (querySnapshot) => {
             const users = [];
-
+      
             querySnapshot.forEach((doc) => {
               const userData = doc.data();
               // Include the userId in the user object
@@ -140,21 +140,33 @@ export const Datatable = () => {
               };
               users.push(user);
             });
-            const teachersData = users;
-    
-            // Map through the fetched teachersData and set the 'id' property to 'Userid'
-            const updatedTeachersData = teachersData.map((teacher, index) => ({
+            console.log("dataTable populated")
+            // Map through the fetched teachersData and set the 'id' property to 'userId'
+            const updatedTeachersData = users.map((teacher, index) => ({
               ...teacher,
               id: index,
             }));
-    
+            
             setRows(updatedTeachersData);
-          } catch (error) {
-            console.log("Error fetching teachers:", error);
           }
+        );
+      
+        // Clean up the listener when the component unmounts
+        return () => {
+          unsubscribe();
         };
-    
-        fetchTeachers();
+      };
+      
+      // Call the fetchTeachers function to populate the rows state
+      useEffect(() => {
+        const unsubscribe = fetchTeachers();
+      
+        // Clean up the listener when the component unmounts
+        return () => {
+          unsubscribe();
+        };
+      }, []);
+      
 
 
   return (

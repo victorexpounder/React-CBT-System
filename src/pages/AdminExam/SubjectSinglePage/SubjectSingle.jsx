@@ -8,7 +8,7 @@ import { AccountCard } from '../../../components/AccountCard/AccountCard'
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import './SubjectSingle.scss'
 import { db } from '../../../firebase';
-import { collection, deleteDoc, doc, getDocs, query, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, onSnapshot, query, setDoc, updateDoc } from 'firebase/firestore';
 import { Exams } from '../../../Exams';
 
 
@@ -18,41 +18,31 @@ export const SubjectSingle = () => {
   const subject =  JSON.parse(localStorage.getItem('subject'));
   const term =  JSON.parse(localStorage.getItem('term'));
   const grade =  JSON.parse(localStorage.getItem('class'));
-  const [examsList, setExamsList] = useState([])
+  // const [examsList, setExamsList] = useState([])
+  const examsList = Exams(null, year,term,grade,subject);
   const [loading, setLoading] = useState(true);
   const [publishSucess, setPublishSuccess] = useState(false);
 
 
   
-    
-    
-  
+  // useEffect(() => {
+  // const fetchExams = async () =>{
+  //   try{
 
-  const fetchExams = async () =>{
-    try{
+  //   const exams = await Exams(null, year,term,grade,subject);
 
-    const exams = await Exams(null, year,term,grade,subject);
-
-    setExamsList(exams);
-    setLoading(false);
+  //   setExamsList(exams);
+  //   setLoading(false);
       
-    }
-    catch(error){
-      console.log(error);
-    }
-  }
+  //   }
+  //   catch(error){
+  //     console.log(error);
+  //   }
+  // }
+  // fetchExams();
+  // }, [year, term, grade, subject]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchExams();
-    };
-
-    fetchData();
-    const intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
-    return () => clearInterval(intervalId); // Clear the interval on component unmount
-  }, []);
- 
-    
+  
   
   
 
@@ -75,6 +65,34 @@ export const SubjectSingle = () => {
       ]
     }
   );
+
+  const [results, setResults] = useState();
+ 
+  const resultsRef = collection(db, `exams/${year+term+grade+subject+selectedExam.name}/results`);
+  useEffect(() => {
+    const q = query(resultsRef);
+
+    // Set up a real-time listener using onSnapshot
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const updatedResults = [];
+      querySnapshot.forEach((doc) => {
+        const resultData = doc.data();
+        const result = {
+          name : doc.id,
+          ...resultData,
+        }
+        updatedResults.push(result);
+      });
+
+      setResults(updatedResults);
+      console.log("result  fetched");
+    });
+
+    return () => {
+      unsubscribe(); // Clean up the listener when the component unmounts
+    };
+  }, [resultsRef]);
+
   const [examOpen, setExamOpen] = useState(false)
   const [deleteExam, setDeleteExam] = useState(null);
   const [showAddDialouge, setShowAddDialouge] = useState(false);
@@ -441,6 +459,18 @@ export const SubjectSingle = () => {
     }
   };
   
+  const formatDate = (timestamp) => {
+    const datestamp = timestamp?.toDate();
+    const date = datestamp?.toLocaleString();
+    const dateArray = date?.split(",")
+    return dateArray? dateArray[0] : '';
+  };
+  const formatTime = (timestamp) => {
+    const datestamp = timestamp?.toDate();
+    const date = datestamp?.toLocaleString();
+    const dateArray = date?.split(",")
+    return dateArray? dateArray[1] : '';
+  };
 
   return (
     <div>
@@ -633,18 +663,19 @@ export const SubjectSingle = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {rows.map((row) => (
+                          {results.map((result) => (
                             <TableRow
-                              key={row.name}
+                              key={subject.name}
                               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                               <TableCell component="th" scope="row">
-                                {row.name}
+                                {result.name}
                               </TableCell>
-                              <TableCell align="right">{row.calories}</TableCell>
-                              <TableCell align="right">{row.fat}</TableCell>
-                              <TableCell align="right">{row.carbs}</TableCell>
-                              <TableCell align="right">{row.protein}</TableCell>
+                              <TableCell align="right">{result.correctCount}</TableCell>
+                              <TableCell align="right">{result.score}</TableCell>
+                              <TableCell align="right">{formatTime(result.timestamp)}</TableCell>
+                              <TableCell align="right">{formatDate(result.timestamp)}</TableCell>
+                             
                             </TableRow>
                           ))}
                         </TableBody>

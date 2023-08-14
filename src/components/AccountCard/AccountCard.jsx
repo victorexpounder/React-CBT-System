@@ -1,10 +1,10 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import "../UserCard/UserCard.scss"
 import { Avatar, Backdrop, Button, Card, CardActions, CardContent, Typography } from "@mui/material";
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../contex/UserContext';
 import { db } from '../../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 
 
 export const AccountCard = () => {
@@ -12,12 +12,17 @@ export const AccountCard = () => {
     const navigate = useNavigate();
     const { currentUser } = useContext(UserContext);
     const userDocRef = doc(db, "users", currentUser.uid);
-    const getUserDoc = async () => await getDoc(userDocRef);
-    
-    getUserDoc().then((userDoc) => {
-         const data = userDoc.data()
-         setUserData(data);
-    })
+    // Subscribe to document changes using onSnapshot
+  useEffect(() => {
+    const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
+      const data = snapshot.data();
+      setUserData(data);
+      
+    });
+
+    // Clean up the subscription when component unmounts
+    return () => unsubscribe();
+  }, [userDocRef]);
     
   return (
     <div className='userCard'>

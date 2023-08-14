@@ -7,7 +7,9 @@ export const AdminSignup = () => {
   return (
     <div className='AdminSignup'>
         <LoginSidebar />
-        <SignupForm />
+        
+        <SignupForm className='signupCon'/>
+        
     </div>
   )
 }

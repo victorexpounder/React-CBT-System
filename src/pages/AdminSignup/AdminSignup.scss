@@ -6,3 +6,10 @@
     height: 100vh;
     display: flex;
 }
+
+@media (max-width: 800px) {
+    .AdminSignup{
+        flex-direction: column;
+        
+    }
+}

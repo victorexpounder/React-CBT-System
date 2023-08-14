@@ -11,6 +11,9 @@
        align-items: center;
        justify-content: center;
        text-align: center;
+       @media (max-width: 800px) {
+         padding: 0;
+       }
         form{
             display: flex;
             flex-direction: column;
@@ -35,7 +38,7 @@
                     font-size: 18px;
                     border: none;
                     &:focus{
-                        border-color: transparent;
+                        outline: none;
                     }
                 }
                 .eye{

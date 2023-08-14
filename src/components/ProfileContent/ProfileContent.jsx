@@ -6,19 +6,24 @@ import { Edit } from "@mui/icons-material";
 import { updateEmail } from "firebase/auth";
 import { UserContext } from "../../contex/UserContext";
 import { auth, db, storage } from "../../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export const ProfileContent = () => {
   const [userData, setUserData] = useState();
   const { currentUser } = useContext(UserContext);
   const userDocRef = doc(db, "users", currentUser.uid);
-  const getUserDoc = async () => await getDoc(userDocRef);
-  
-  getUserDoc().then((userDoc) => {
-       const data = userDoc.data()
-       setUserData(data);
-  })
+  // Subscribe to document changes using onSnapshot
+  useEffect(() => {
+    const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
+      const data = snapshot.data();
+      setUserData(data);
+      
+    });
+
+    // Clean up the subscription when component unmounts
+    return () => unsubscribe();
+  }, [userDocRef]);
 
   const [Updateemail, setUpdateEmail] = useState(userData?.email);
   const [Updatename, setUpdateName] = useState(userData?.fullname);
@@ -205,9 +210,15 @@ export const ProfileContent = () => {
           ref={fileInputRef}
         />
         {showNameInput &&
+          <div className="con" style={{display:'flex', flexDirection:'row', gap:'0.5rem'}}>
           <button type="submit" className="fbutton" >
           Save Changes
           </button>
+          <button className="fbutton" onClick={()=>setshowNameInput(false)}>
+          cancel
+          </button>
+          </div>
+
         }
         </form>
         

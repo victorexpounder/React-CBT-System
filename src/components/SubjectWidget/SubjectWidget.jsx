@@ -4,7 +4,7 @@ import "./SubWidget.scss";
 import { Edit, Person } from "@mui/icons-material";
 import { Backdrop, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Tooltip } from "@mui/material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import { collection, doc, getDocs, query, setDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDocs, onSnapshot, query, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import Teachersdata from "../../TeachersData";
 
@@ -15,40 +15,32 @@ export const SubjectWidget = () => {
 
   const [teachersList, setTeachersList] = useState('none')
 
-  const subjects = async () => {
-    const usersRef = collection(db, "subjects");
-    const q = query(usersRef);
-    const querySnapshot = await getDocs(q); // Use await to wait for the result
-  
-    const subjectsData = [];
-    querySnapshot.forEach((doc) => {
-      const subjectData = doc.data();
-      // Include the subject name in the subject object
-      const subject = {
-        name: doc.id,
-        ...subjectData,
-      };
-      subjectsData.push(subject);
+  useEffect(() => {
+    // Set up the real-time listener for subjects data
+    const unsubscribeSubjects = onSnapshot(collection(db, "subjects"), (snapshot) => {
+      const updatedSubjects = [];
+      snapshot.forEach((doc) => {
+        const subjectData = doc.data();
+        const subject = {
+          name: doc.id,
+          ...subjectData,
+        };
+        updatedSubjects.push(subject);
+      });
+      setSubjectList(updatedSubjects);
     });
-    
-    return subjectsData;
-  };
 
-  const fetchSubjects = async () => {
-    const subjectsData = await subjects();
-    setSubjectList(subjectsData);
-  };
+    // Set up the real-time listener for teachers data
+    const unsubscribeTeachers = Teachersdata("Teacher", "Principal", (users) => {
+      setTeachersList(users);
+    });
 
-  const fetchTeachers = async () => {
-    const teachers = await Teachersdata('Teacher', 'Principal');
-    setTeachersList(teachers);
-    
-  }
-
-  // Call the fetchSubjects function to populate the subjectList state
-  
-    fetchSubjects();
-    fetchTeachers();
+    // Clean up the listeners when the component unmounts
+    return () => {
+      unsubscribeSubjects();
+      unsubscribeTeachers();
+    };
+  }, []);
   
   
   

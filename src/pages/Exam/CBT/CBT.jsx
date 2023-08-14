@@ -6,58 +6,46 @@ import CalculatorComponent from '../../../components/Calculator/Calculator';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import ResultComponent from '../../../components/Result/Result';
 import { useEffect } from 'react';
+import { collection, doc, getDoc } from 'firebase/firestore';
+import { db } from '../../../firebase';
 
 const CBTComponent = () => {
     const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [exam, setExam] = useState();
     const term = 'First'
     const subject = 'Economics'
     const year = '2022/2023'
-    const totalmarks = 8;
-    const mark = 2;
-    const questions = [
-      {
-        question: 'What is the capital of France?',
-        options: [
-          {optionText: 'Paris', isCorrect: true}, 
-          {optionText: 'Rome', isCorrect: false},                                     
-          {optionText: 'Lagos', isCorrect: false},                                     
-          {optionText: 'Johernesburg', isCorrect: false},                                     
-        ],
-      },
-      {
-        question: 'What is the capital of France?',
-        options: [
-          {optionText: 'Paris', isCorrect: true}, 
-          {optionText: 'Spain', isCorrect: false},                                     
-          {optionText: 'Parr', isCorrect: false},                                     
-          {optionText: 'China', isCorrect: false},                                   
-        ],
-      },
-      {
-        question: 'What is the capital of France?',
-        options: [
-          {optionText: 'Paris', isCorrect: false}, 
-          {optionText: 'Pauio', isCorrect: false},                               
-          {optionText: 'Cartelie', isCorrect: true},                                     
-          {optionText: 'Into', isCorrect: false},                                     
-        ],
-      },
-      {
-        question: 'What is the capital of France?',
-        options: [
-          {optionText: 'Paris', isCorrect: true}, 
-          {optionText: 'Phiont', isCorrect: false},                                     
-          {optionText: 'Pogfht', isCorrect: false},                                     
-          {optionText: 'uinto', isCorrect: false},                                     
-        ],
-      },
-      // Add more questions here
-    ];
-    const studentName = "Johnstone Bristin"
-    const [selectedOptions, setSelectedOptions] = useState(Array(questions.length).fill(null)); // Array to keep track of selected options for each question
+    const totalmarks = exam?.questionNo;
+    const mark = 1;
+    const [questions, setQuestions] = useState([
+     
+    ]);
+
+    const examID = JSON.parse(localStorage.getItem("exam"));
+    const fetchExams = async() =>{
+      try{
+        const examsRef = doc(db, "exams", examID);
+        const examDoc = await getDoc(examsRef);
+        const data = examDoc.data();
+        
+        setExam(data);
+        setQuestions(data.questions);
+        console.log(questions);
+        
+      }catch(error){
+        console.log(error);
+      }
+    }
+
+    useEffect(()=>{
+      fetchExams();
+    },[])
+
+    const studentName = JSON.parse(localStorage.getItem("studentName"));
+    const [selectedOptions, setSelectedOptions] = useState(Array(questions?.length).fill(null)); // Array to keep track of selected options for each question
     const [showCalculator, setShowCalculator] = useState(false);
     const [showResult, setShowResult] = useState(false);
-    const [SelectedAnswers, setSelectedAnswers] = useState(Array(questions.length).fill(null));
+    const [SelectedAnswers, setSelectedAnswers] = useState(Array(questions?.length).fill(null));
     const [timeElapsed, setTimeElapsed] = useState(0); // State variable to keep track of time elapsed
     // Set allocated time in hours
     const allocatedTimeHours = 0.05;
@@ -175,12 +163,12 @@ const CBTComponent = () => {
               </button>
             </div>
 
-          <h1 className='heading'>{term} Term {subject} Examination {year}</h1>
+          <h1 className='heading'>{exam?.term} Term {exam?.subject} Examination {exam?.session}</h1>
         <div className="question-container">
-          <h2 className='questionCount'>{currentQuestion + 1}/{questions.length}</h2>
-          <h1 className="question">{questions[currentQuestion].question}</h1>
+          <h2 className='questionCount'>{currentQuestion + 1}/{questions?.length}</h2>
+          <h1 className="question">{questions[currentQuestion]?.question}</h1>
           <ul className="options">
-            {questions[currentQuestion].options.map((option, index) => (
+            {questions[currentQuestion]?.options.map((option, index) => (
               <li
                 key={index}
                 className={`option ${selectedOptions[currentQuestion] === option.optionText ? 'selected' : ''}`}
@@ -210,7 +198,7 @@ const CBTComponent = () => {
         {showResult && (
             <div className="cbt-container">
               <div className="question-container">
-                <ResultComponent totalQuestions={questions.length}  selectedans={SelectedAnswers} totalmarks={totalmarks} mark={mark} subject={subject} year={year} sudentName={studentName}/>
+                <ResultComponent totalQuestions={questions.length}  selectedans={SelectedAnswers} totalmarks={totalmarks} mark={mark} subject={exam.subject} year={exam.session} studentName={studentName} examID={examID} term={exam.term}/>
               </div>
             </div>
 

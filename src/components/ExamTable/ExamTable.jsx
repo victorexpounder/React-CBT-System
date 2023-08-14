@@ -8,97 +8,72 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Avatar } from "@mui/material";
 import { TeacherSubject } from "../../TeacherSubject";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Teachersdata from "../../TeachersData";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
 
 export const ExamTable = () => {
-  let rows=[
-    {
-        subject: "Economics",
-        class: "SSS1",
-        date: "2023/15/04"
-        },
-        {
-        subject: "Agric",
-        class: "SSS2",
-        date: "2023/15/04"
-        },
-        {
-        subject: "English",
-        class: "SS3",
-        date: "2023/15/04"
-        }];
         let tableHead = ['subject', 'class', 'term', 'session' ]
 
-        const [teachers, setTeachers] = useState(null);
+        
+      const subjects = TeacherSubject();
+    // const [subjects, setSubjects] = useState();
 
-      const fetchTeachers = async () => {
-        try {
-          const teachersData = await Teachersdata("Teacher", "Principal");
-          setTeachers(teachersData);
-        } catch (error) {
-          console.log('Error fetching teachers:', error);
-        }
-      };
-    
-
-        fetchTeachers();
-
-
-      console.log(teachers);
-    const approvedTeachers = teachers?.filter((teacher) => teacher.approved === true);
-    const unApprovedTeachers = teachers?.filter((teacher) => teacher.approved === false);
-
-    const [subjects, setSubjects] = useState();
   
-    const fetchSubjects = async () => {
-      try {
-        const subjectArray = await TeacherSubject();
-        setSubjects(subjectArray);
-      } catch (error) {
-        console.log("Error fetching teachers:", error);
-      }
-    };
+    // const fetchSubjects = async () => {
+    //   try {
+    //     const subjectArray = await TeacherSubject();
+    //     setSubjects(subjectArray);
+    //   } catch (error) {
+    //     console.log("Error fetching teachers:", error);
+    //   }
+    // };
 
-    fetchSubjects();
+    // fetchSubjects();
 
     const [examsList, setExamsList] = useState([]);
     const [examsOngoing, setExamsOngoing] = useState([]);
 
-  const fetchExams = async () =>{
-    try{
-    const examsRef = collection(db, "exams");
-    const q = query(examsRef, where('subject', 'in', subjects));
-    const qP = query(examsRef, where('subject', 'in', subjects),  where("public", "==", true));
-    const querySnapshot = await getDocs(q);
-    const querySnapshotP = await getDocs(qP);
-    const exams = [];
-    const examsP = [];
-
-    querySnapshot.forEach((doc) => {
-      const exam = doc.data(); // Call the function to get the actual data
-      exams.push(exam);
-    });
-    querySnapshotP.forEach((doc) => {
-      const examP = doc.data(); // Call the function to get the actual data
-      examsP.push(examP);
-    });
+    const fetchExams = () => {
+      if (subjects && subjects.length > 0) {
+        const examsRef = collection(db, "exams");
+        const q = query(examsRef, where('subject', 'in', subjects));
     
-    setExamsList(exams);
-    setExamsOngoing(examsP);
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const exams = [];
+          const examsP = [];
     
-      
-      
-    }
-    catch(error){
-      console.log(error);
-    }
-  }
+          snapshot.forEach((doc) => {
+            const exam = doc.data();
+            exams.push(exam);
+    
+            // Only push the exam to examsP if it meets the public criteria
+            if (exam.public === true) {
+              examsP.push(exam);
+            }
+          });
+    
+          setExamsList(exams);
+          setExamsOngoing(examsP);
+        });
+    
+        return unsubscribe; // Return the unsubscribe function
+      }
+    
+      // If subjects is empty, return a no-op function
+      return () => {};
+    };
+    
 
-  // Fetch exams from Firebase when the component mounts
-  fetchExams();
+useEffect(() => {
+  const unsubscribe = fetchExams();
+
+  // Clean up the listener when the component unmounts or when the dependencies change
+  return () => {
+    unsubscribe();
+  };
+}, [subjects]); // Make sure to include 'subjects' as a dependency
 
 
   return (

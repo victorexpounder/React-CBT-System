@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { SideBar } from '../../../components/SideBar/SideBar'
 import { Backdrop} from '@mui/material'
 import { Menu } from "@mui/icons-material";
@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { WidgetTemp } from '../../../components/ExamsWidget/ExamsWidget';
 import { TeacherSubject } from '../../../TeacherSubject';
 import { UserContext } from '../../../contex/UserContext';
-import { collection, doc, getDoc, getDocs, query } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, onSnapshot, query } from 'firebase/firestore';
 import { db } from '../../../firebase';
 
 
@@ -35,43 +35,36 @@ export const AdminSubjectSelect = () => {
         setOpen(true);
     };
 
-    const [subjects, setSubjects] = useState([]);
+    // const [subjects, setSubjects] = useState([]);
+    const subjects = TeacherSubject();
     const [subjectList, setSubjectList] = useState([
       ''
     ]);
   
-    const fetchSubjects = async () => {
-      try {
-        const subjectArray = await TeacherSubject();
-        setSubjects(subjectArray);
-      } catch (error) {
-        console.log("Error fetching teachers:", error);
-      }
-    };
+    // const fetchSubjects = async () => {
+    //   try {
+    //     const subjectArray = await TeacherSubject();
+    //     setSubjects(subjectArray);
+    //   } catch (error) {
+    //     console.log("Error fetching teachers:", error);
+    //   }
+    // };
 
-    const subjectsD = async () => {
-      const usersRef = collection(db, "subjects");
-      const q = query(usersRef);
-      const querySnapshot = await getDocs(q); // Use await to wait for the result
-    
+    const unsubscribeSubjectsD = onSnapshot(collection(db, 'subjects'), (querySnapshot) => {
       const subjectsData = [];
       querySnapshot.forEach((doc) => {
-        
         const subject = doc.id;
-     
         subjectsData.push(subject);
       });
-      
-      return subjectsData;
-    };
-
-    const fetchSubjectsD = async () => {
-      const subjectsData = await subjectsD();
       setSubjectList(subjectsData);
-    };
-
-    fetchSubjects();
-    fetchSubjectsD();
+    });
+  
+    useEffect(() => {
+  
+      return () => {
+        unsubscribeSubjectsD(); // Clean up the listener when the component unmounts
+      };
+    }, []);
 
     const [userData, setUserData] = useState();
     const { currentUser } = useContext(UserContext);
