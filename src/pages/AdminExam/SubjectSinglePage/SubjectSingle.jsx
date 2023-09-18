@@ -1,5 +1,5 @@
 //code
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { SideBar } from '../../../components/SideBar/SideBar'
 import { Alert, Backdrop, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, FormControl, Input, InputLabel, MenuItem, Paper, Select, Slide, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip} from '@mui/material'
 import { ArrowBack, Article, DeleteForever, Edit, Label, Menu, Padding, Public, PublicOff, Publish, Save, Unpublished } from "@mui/icons-material";
@@ -8,8 +8,10 @@ import { AccountCard } from '../../../components/AccountCard/AccountCard'
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import './SubjectSingle.scss'
 import { db } from '../../../firebase';
-import { collection, deleteDoc, doc, getDocs, onSnapshot, query, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, onSnapshot, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { Exams } from '../../../Exams';
+import { UserContext } from '../../../contex/UserContext';
+import ChecklistIcon from '@mui/icons-material/Checklist';
 
 
 export const SubjectSingle = () => {
@@ -18,30 +20,87 @@ export const SubjectSingle = () => {
   const subject =  JSON.parse(localStorage.getItem('subject'));
   const term =  JSON.parse(localStorage.getItem('term'));
   const grade =  JSON.parse(localStorage.getItem('class'));
-  // const [examsList, setExamsList] = useState([])
-  const examsList = Exams(null, year,term,grade,subject);
-  const [loading, setLoading] = useState(true);
+  const HodSubjects = JSON.parse(localStorage.getItem('hodSubjects'));
+  const [examsList, setExamsList] = useState([]);
+  const [hodDepartments, setHodDepartments] = useState();
+  const [hodConfirmed, setHodConfirmed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [approveSuccess, setApproveSuccess] = useState(false);
+  const [notApprovedMsg, setNotApprovedMsg] = useState(false);
+
+  const { currentUser } = useContext(UserContext);
+
+  // const examsList = Exams(null, year,term,grade,subject);
+  
   const [publishSucess, setPublishSuccess] = useState(false);
 
+  //fetch user Department
+  const fetchDepartments = () =>{
+    const departmentsRef = collection(db, "departments");
+    const q = query(departmentsRef, where("hodId", "==", currentUser.uid));
 
+    // Set up a real-time listener using onSnapshot
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const updateddepartments = [];
+      querySnapshot.forEach((doc) => {
+        updateddepartments.push(doc.id);
+      });
+
+      setHodDepartments(updateddepartments);
+      console.log(updateddepartments);
+    });
+
+    return unsubscribe;
+    
+  }
+
+  useEffect(() => {
+    const unsubscribe = fetchDepartments(); // Call fetchDepartments directly
+    return () => {
+      unsubscribe(); // Clean up the listener when the component unmounts
+    };
+  }, []);
   
-  // useEffect(() => {
-  // const fetchExams = async () =>{
-  //   try{
-
-  //   const exams = await Exams(null, year,term,grade,subject);
-
-  //   setExamsList(exams);
-  //   setLoading(false);
+  useEffect(() => {
+    const examsRef = collection(db, 'exams');
+    setLoading(true)
+    const queryFilters = [
+      where('session', '==', year),
+      where('term', '==', term),
+      where('subject', '==', subject),
+      where('class', '==', grade),
+    ];
+  
+    const q = query(examsRef, ...queryFilters);
+  
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const examsData = [];
+        querySnapshot.forEach((doc) => {
+          const exam = doc.data(); // Call the function to get the actual data
+          examsData.push(exam);
+        });
+        console.log("exams")
+        setExamsList(examsData);
+        confirmHod();
+        setLoading(false);
+      });
+  
+      return () => {
+        unsubscribe(); // Clean up the listener when the component unmounts
+      };
+    }, [year, term, subject, grade]);
+    
+    
+    const confirmHod = () =>{
       
-  //   }
-  //   catch(error){
-  //     console.log(error);
-  //   }
-  // }
-  // fetchExams();
-  // }, [year, term, grade, subject]);
-
+      const notEqual = HodSubjects.every(item => item !== subject);
+        if(!notEqual)
+        {
+          setHodConfirmed(true);
+          
+        }
+      
+    }
   
   
   
@@ -68,8 +127,8 @@ export const SubjectSingle = () => {
 
   const [results, setResults] = useState();
  
-  const resultsRef = collection(db, `exams/${year+term+grade+subject+selectedExam.name}/results`);
-  useEffect(() => {
+  const fetchResults = (exam) =>{
+    const resultsRef = collection(db, `exams/${year+term+grade+subject+exam.name}/results`);
     const q = query(resultsRef);
 
     // Set up a real-time listener using onSnapshot
@@ -85,16 +144,18 @@ export const SubjectSingle = () => {
       });
 
       setResults(updatedResults);
-      console.log("result  fetched");
+      console.log('results fetched');
     });
 
     return () => {
       unsubscribe(); // Clean up the listener when the component unmounts
     };
-  }, [resultsRef]);
+  }
+  
 
   const [examOpen, setExamOpen] = useState(false)
   const [deleteExam, setDeleteExam] = useState(null);
+  const [showDeleteDialouge, setShowDeleteDialouge] = useState(false);
   const [showAddDialouge, setShowAddDialouge] = useState(false);
   const [examName, setExamName] = useState(null);
   const [examNameError, setExamNameError] = useState(false);
@@ -209,6 +270,7 @@ export const SubjectSingle = () => {
           const newExam = {
             name: examName,
             public: false,
+            approved: false,
             questionNo : value,
             duration : duration,
             session: year,
@@ -276,27 +338,51 @@ export const SubjectSingle = () => {
         const DocRef = doc(CollectionRef, year+term+grade+subject+deleteExam.name);
         await deleteDoc(DocRef);
         setDeleteExam(null);
+        setShowDeleteDialouge(false);
       }
       catch(error){
         console.log(error);
+        setShowDeleteDialouge(false);
         setDeleteExam(null);
       }
     }
 
     const handledClose = () =>{
+      setShowDeleteDialouge(false)
       setDeleteExam(null);
     }
     
     const handlePublish = async(exam) => {
+      if(exam.approved || exam.public)
+      {
+        try{
+          const userDocRef = doc(db, "exams", year+term+grade+subject+exam.name);
+        
+          // Update the fullname and email fields in Firestore 
+          await updateDoc(userDocRef, {
+            public: !exam.public,
+            
+          });
+          setPublishSuccess(true);
+        }catch(error){
+          console.log(error);
+        }
+      }else{
+        setNotApprovedMsg(true);
+      }
+
+    };
+
+    const handleApprove = async(exam) => {
       try{
         const userDocRef = doc(db, "exams", year+term+grade+subject+exam.name);
       
         // Update the fullname and email fields in Firestore
         await updateDoc(userDocRef, {
-          public: !exam.public,
+          approved: !exam.approved,
           
         });
-        setPublishSuccess(true);
+        setApproveSuccess(true);
       }catch(error){
         console.log(error);
       }
@@ -500,9 +586,9 @@ export const SubjectSingle = () => {
 
           <div className="examHistoryCon">
             <div className="examHistory">
-              {(examsList.length !== 0 && !examOpen && !showResult &&
+              {(examsList?.length !== 0 && !examOpen && !showResult &&
                 <div className="historyListCon">
-                  {examsList.map((exam) =>(
+                  {examsList?.map((exam) =>(
                     <div className="historyList" onClick={()=> setSelectedExam(exam)}>
                       <div className="details">
                         <div className="publicIcon">
@@ -520,7 +606,7 @@ export const SubjectSingle = () => {
 
                         <Tooltip title="Delete">
                         <Fab color="secondary" aria-label="edit" size='small'>
-                        <DeleteForever onClick={() => setDeleteExam(exam)}/>
+                        <DeleteForever onClick={() => {setDeleteExam(exam); setShowDeleteDialouge(true)}}/>
                         </Fab>
                         </Tooltip>
 
@@ -534,11 +620,21 @@ export const SubjectSingle = () => {
                           </Fab>
                         </Tooltip>
 
-                        <Tooltip title="Results">
-                          <Fab color="primary" aria-label="edit" size='small'>
-                          <Article onClick={() => setShowResult(true)}/>
+                        {hodConfirmed &&
+                          <Tooltip  title={ exam.approved? "Unapprove" : "Approve"}>
+                          <Fab color={exam.approved? 'success' : "primary"} aria-label="edit" size='small'>
+                          <ChecklistIcon onClick={() => handleApprove(exam)}/>
                           </Fab>
                         </Tooltip>
+                        }
+
+                        <Tooltip title="Results">
+                          <Fab color="primary" aria-label="edit" size='small'>
+                          <Article onClick={() =>{fetchResults(exam); setShowResult(true)}}/>
+                          </Fab>
+                        </Tooltip>
+
+                        
                       </div>
                      
                     </div>
@@ -551,6 +647,18 @@ export const SubjectSingle = () => {
                       </Alert>
                     </Snackbar>
 
+                    <Snackbar open={approveSuccess} autoHideDuration={6000} onClose={() => setApproveSuccess(false)}>
+                      <Alert onClose={() => setApproveSuccess(false)} severity={selectedExam.approved? "info" : "success"} sx={{ width: '100%' }}>
+                      {selectedExam.approved? " Exam Unapproved Successfully" : "Exam Approved"} 
+                      </Alert>
+                    </Snackbar>
+
+                    <Snackbar open={notApprovedMsg} autoHideDuration={6000} onClose={() => setNotApprovedMsg(false)}>
+                      <Alert onClose={() => setNotApprovedMsg(false)} severity={'warning'} sx={{ width: '100%' }}>
+                        Exam not yet approved, Contact Head Of department 
+                      </Alert>
+                    </Snackbar>
+
                </div>
 
                 
@@ -559,9 +667,9 @@ export const SubjectSingle = () => {
 
                 )}
 
-                {(examsList.length === 0 && !examOpen && !showResult &&
+                {(examsList?.length === 0 && !examOpen && !showResult &&
                   <div className="unavailable">
-                  {loading? <h1>Loading....</h1> :<h1>No Exams Available</h1>}
+                  { loading?  <h1>Loading...</h1> : <h1>No Exams Available</h1>}
                   
                   </div>
                   )}
@@ -648,7 +756,7 @@ export const SubjectSingle = () => {
                 {(showResult &&
                   <div className="resultCon">
                     <ArrowBack onClick={()=> setShowResult(false)} sx={{cursor:'pointer'}}/>
-                    <h2>20 students took your exam</h2>
+                    <h2>{results?.length} students took your exam</h2>
 
                     <Paper sx={{ width: '100%', overflow: 'hidden'}}>
                     <TableContainer sx={{ maxHeight: 300}}>
@@ -663,18 +771,18 @@ export const SubjectSingle = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {results.map((result) => (
+                          {results?.map((result) => (
                             <TableRow
                               key={subject.name}
                               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                               <TableCell component="th" scope="row">
-                                {result.name}
+                                {result?.name}
                               </TableCell>
-                              <TableCell align="right">{result.correctCount}</TableCell>
-                              <TableCell align="right">{result.score}</TableCell>
-                              <TableCell align="right">{formatTime(result.timestamp)}</TableCell>
-                              <TableCell align="right">{formatDate(result.timestamp)}</TableCell>
+                              <TableCell align="right">{result?.correctCount}</TableCell>
+                              <TableCell align="right">{result?.score}</TableCell>
+                              <TableCell align="right">{formatTime(result?.timestamp)}</TableCell>
+                              <TableCell align="right">{formatDate(result?.timestamp)}</TableCell>
                              
                             </TableRow>
                           ))}
@@ -773,11 +881,9 @@ export const SubjectSingle = () => {
 
         {/* Delete Exam dialouge Box */}
 
-        {deleteExam && (
+        {showDeleteDialouge && (
           <Dialog
-          open={deleteExam? true : false}
-          TransitionComponent={Transition}
-          keepMounted
+          open={showDeleteDialouge}
           onClose={handledClose}
           aria-describedby="alert-dialog-slide-description"
         >

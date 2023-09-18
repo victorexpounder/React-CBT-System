@@ -23,6 +23,11 @@
     .menu{
         display: none;
         height: 50px;
+        position: sticky;
+        top: 0;
+        border-bottom: 0.5px solid rgb(224, 224, 224);
+        background-color: #fff;
+        z-index: 200; 
         
        }
 
@@ -32,6 +37,7 @@
         flex-direction: column;
         align-items: center;
         font-family: Arial, sans-serif;
+        
       }
       
       ul {

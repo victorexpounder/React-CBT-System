@@ -17,6 +17,7 @@ const CBTComponent = () => {
     const year = '2022/2023'
     const totalmarks = exam?.questionNo;
     const mark = 1;
+    const [allocatedTimeSeconds, setAllocatedTimeSeconds] = useState();
     const [questions, setQuestions] = useState([
      
     ]);
@@ -29,9 +30,23 @@ const CBTComponent = () => {
         const data = examDoc.data();
         
         setExam(data);
-        setQuestions(data.questions);
-        console.log(questions);
+        // Shuffle the order of questions
+        const shuffledQuestions = shuffleArray(data.questions);
+        setQuestions(shuffledQuestions);
+
+        console.log(shuffledQuestions);
         
+      }catch(error){
+        console.log(error);
+      }
+    }
+
+    const fetchDuration = async() =>{
+      try{
+        const examsRef = doc(db, "exams", examID);
+        const examDoc = await getDoc(examsRef);
+        const data = examDoc.data();
+        setAllocatedTimeSeconds(data.duration);
       }catch(error){
         console.log(error);
       }
@@ -39,7 +54,18 @@ const CBTComponent = () => {
 
     useEffect(()=>{
       fetchExams();
+      fetchDuration();
     },[])
+
+    function shuffleArray(array) {
+      const shuffledArray = [...array];
+      for (let i = shuffledArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+      }
+      return shuffledArray;
+    }
+    
 
     const studentName = JSON.parse(localStorage.getItem("studentName"));
     const [selectedOptions, setSelectedOptions] = useState(Array(questions?.length).fill(null)); // Array to keep track of selected options for each question
@@ -48,7 +74,7 @@ const CBTComponent = () => {
     const [SelectedAnswers, setSelectedAnswers] = useState(Array(questions?.length).fill(null));
     const [timeElapsed, setTimeElapsed] = useState(0); // State variable to keep track of time elapsed
     // Set allocated time in hours
-    const allocatedTimeHours = 0.05;
+    const allocatedTimeHours = allocatedTimeSeconds / 3600;
     
     const handleOptionSelect = (option) => {
       const updatedSelectedOptions = [...selectedOptions];
@@ -120,9 +146,9 @@ const CBTComponent = () => {
       const handleBeforeUnload = (event) => {
         if (!showResult) {
           event.preventDefault(
-            
+            alert('Are you sure you want to leave, you havent submitted yet')
           );
-          console.log('noooooo');
+          
           
         }
       };
@@ -135,7 +161,25 @@ const CBTComponent = () => {
           return () => {
             window.addEventListener('beforeunload', handleBeforeUnload);
           };
-        }, [showResult]);
+        }, []);
+
+        const handleTabVisibilityChange = () => {
+          if (document.hidden) {
+            handleSubmit();
+            // Perform actions when the user leaves the tab
+          } else {
+            console.log("User returned to the tab");
+            // Perform actions when the user comes back to the tab
+          }
+        };
+      
+        useEffect(() => {
+          document.addEventListener("visibilitychange", handleTabVisibilityChange);
+      
+          return () => {
+            document.removeEventListener("visibilitychange", handleTabVisibilityChange);
+          };
+        }, []);
   
     return (
       <div className="genCon">
@@ -190,7 +234,7 @@ const CBTComponent = () => {
         </div>
         <div className="timer">
         {/* Display remaining time */}
-        <p className={`${remainingTimeHours < 1 && remainingTimeMinutes < 1 ? 'colouredtime' : ''}`}>Time Remaining: {Math.floor(remainingTimeHours)} : {Math.floor(remainingTimeMinutes)} : {Math.floor(remainingTimeSeconds)}</p>
+        <p className={`${remainingTimeHours < 1 && remainingTimeMinutes < 1 ? 'colouredtime' : ''}`}>Time Remaining:  <h1> {Math.floor(remainingTimeHours)} : {Math.floor(remainingTimeMinutes)} : {Math.floor(remainingTimeSeconds)} </h1> </p>
         </div>
           </div>
           )}

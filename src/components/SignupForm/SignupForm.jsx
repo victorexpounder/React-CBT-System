@@ -16,7 +16,7 @@ export const SignupForm = () => {
     const [email, setEmail] = useState(false);
     const [password, setPassword] = useState(false);
     const [role, setRole] = React.useState('');
-    const [subjects, setSubjects] = React.useState([]);
+    const [subjects, setSubjects] = React.useState([""]);
     const approved = false;
     const [Offline, setOffline] = useState(false) ;
     const [openSuccess, setOpenSuccess] = useState(false) ;
@@ -69,7 +69,7 @@ export const SignupForm = () => {
         <input type="email" placeholder="Enter Email" onChange={e=>setEmail(e.target.value)} />
         <input type="password" placeholder="Enter Password" onChange={e=>setPassword(e.target.value)} />
         <SelectAutoWidth role={role} setRole={setRole} />
-        <MultipleSelect personName={subjects} setPersonName={setSubjects}/>
+        
         {error &&  Offline? <span>You are Offline signUp needs internet connection</span> : error && <span>Error in creating account</span>}
         <button type="submit">{loading? 'Signing You Up...' : 'SignUp'}</button>
       </form>

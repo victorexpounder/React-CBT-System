@@ -11,6 +11,7 @@ import { Route, useNavigate } from 'react-router-dom';
 export const SelectExam = () => {
     useEffect(()=>{
         localStorage.removeItem("exam");
+        localStorage.removeItem("studentName");
     }, [])
   
   
@@ -33,10 +34,10 @@ export const SelectExam = () => {
         'Loading..'
     ];
 
-        const [yearf, setYearf] =  useState("");
-        const [subjectf, setSubjectf] =  useState("");
-        const [termf, setTermf] =  useState("");
-        const [gradef, setGradef] =  useState("");
+        const [yearf, setYearf] =  useState(null);
+        const [subjectf, setSubjectf] =  useState(null);
+        const [termf, setTermf] =  useState(null);
+        const [gradef, setGradef] =  useState(null);
         
     
     
@@ -72,6 +73,7 @@ export const SelectExam = () => {
               where("subject", "==", subjectf),
               where("term", "==", termf),
               where("class", "==", gradef),
+              where("public", "==", true),
               )
             const querySnapshot =  await getDocs(q);
             const exams = [];
@@ -125,7 +127,10 @@ export const SelectExam = () => {
 
       const handleSubmit = (e)=>{
         e.preventDefault();
-        if(yearf && subjectf && termf && gradef)
+        const selectedName = JSON.parse(localStorage.getItem("studentName"));
+        const selectedExam = JSON.parse(localStorage.getItem("exam"));
+        console.log(selectedName);
+        if(yearf && subjectf && termf && gradef && selectedExam && selectedName)
         {
             navigate("/cbt");
         }
@@ -135,9 +140,9 @@ export const SelectExam = () => {
 
   return (
     <div className='selectView'>
-        <div className="navBar">
+        <div className="navBarselectexam">
             <h1>BCBT</h1>
-            <div className="logout">
+            <div className="logout" onClick={()=> navigate("/login")}>
             <p>Log Out</p>
             <Logout/>
             </div>

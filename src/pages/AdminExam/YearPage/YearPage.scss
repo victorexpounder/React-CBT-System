@@ -1,6 +1,7 @@
 .yearCont{
     width: 100%;
     
+    
     .title{
         width: 100%;
         display: flex;
@@ -28,4 +29,11 @@
         
         
     }
+}
+
+.navbar{
+    position: sticky;
+    top: 0;
+    background-color: #fffffff5;
+    z-index: 200;
 }

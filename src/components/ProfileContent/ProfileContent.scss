@@ -6,6 +6,10 @@
     margin-bottom: 50px;
     color: #888;
     width: 100%;
+    @media (min-width: 800px) {
+      height: 80vh;
+      overflow-y: auto;
+    }
   
     .profile-heading {
       font-size: 3rem;

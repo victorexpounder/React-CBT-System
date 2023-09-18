@@ -11,6 +11,9 @@
         display: flex;
         justify-content: space-between;
         flex-direction: column;
+        background-image: linear-gradient(rgba(149, 164, 226, 0.7),rgba(0, 0, 0, 0.7)),url(https://images.pexels.com/photos/10638067/pexels-photo-10638067.jpeg?auto=compress&cs=tinysrgb&w=800);
+        background-position: center;
+        background-size: cover;
     }
     header{
         margin: 0;
@@ -22,7 +25,7 @@
             font-size: 25px;
            a{
             text-decoration: none;
-            color: #233c9b;
+            color: #101f5e;
             opacity: 0.7;
            }
         }
@@ -30,8 +33,7 @@
             font-weight: bold;
             font-family: 'Kanit', sans-serif;
             font-size: 30px;
-            color: #233c9b;
-
+            color: #0b1c60;
         }
     }
 }

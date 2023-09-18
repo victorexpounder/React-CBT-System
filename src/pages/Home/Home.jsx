@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import './Home.scss'
 import { SideBar } from '../../components/SideBar/SideBar'
 import { Menu, Widgets } from '@mui/icons-material'
@@ -11,9 +11,25 @@ import { AccountCard } from '../../components/AccountCard/AccountCard'
 import { db } from '../../firebase'
 import { UserContext } from '../../contex/UserContext'
 import { doc, getDoc } from 'firebase/firestore'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 export const Home = () => {
+
+  const navigate = useNavigate();
+
+  const RequireAdmin = async () =>{
+    const userDocRef = doc(db, "users", currentUser.uid);
+    const UserDoc = await getDoc(userDocRef);
+    const isAdmin = UserDoc.exists();
+    if (!isAdmin){
+      navigate('/selectExam')
+    }
+}
   
+  useEffect(()=>{
+    RequireAdmin();
+  }, [])
+
   const [sidetoggle, setSidetoggle] = useState('hidden')
   const [userData, setUserData] = useState();
   function hideMenu (){

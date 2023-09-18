@@ -49,7 +49,7 @@ export const Tablec = () => {
               <TableCell className="tableCell">
                 <div className="nameIcon">
                   <Avatar
-                    src={`https://example.com/avatars/${teacher.fullname}.jpg`}
+                    src={teacher.profilePictureURL}
                     alt={`${teacher.fullname}`}
                     className="avatar"
                   />

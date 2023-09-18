@@ -27,7 +27,6 @@
     &__answers {
       margin-top: 16px;
       font-size: 16px;
-  
       p {
         margin-bottom: 8px;
       }
@@ -38,6 +37,14 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
+    }
+    .backButton{
+        padding: 1rem;
+        border: none;
+        font-size: 2rem;
+        &:hover{
+          background-color: rgba(224, 177, 177, 0.267);
+        }
     }
   }
   

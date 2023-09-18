@@ -100,6 +100,8 @@
                     align-items: center;
                     justify-content: space-between;
                     color: #4f4d4d;
+                    overflow-x: auto;
+                    z-index: 100;
                     
                     
                   
@@ -109,6 +111,10 @@
                         align-self: flex-end;
                         cursor: pointer;
                         transition: 1s display ease;
+                        @media (max-width: 700px) {
+                            display: flex;
+                            gap: 0.3rem;
+                        }
                     }
                 }
             }

@@ -15,15 +15,7 @@ import { getStorage } from 'firebase/storage';
 
 const key = process.env.REACT_APP_Key;
 console.log(key)
-const firebaseConfig = {
-  apiKey: "AIzaSyCHXJ-gFya7ybCTlOOb8XmWjKyPLk3FogQ",
-  authDomain: "blessed-cbt.firebaseapp.com",
-  projectId: "blessed-cbt",
-  storageBucket: "blessed-cbt.appspot.com",
-  messagingSenderId: "588104970700",
-  appId: "1:588104970700:web:61e00d411f1866cbb52d69",
-  measurementId: "G-J9WW0YX3E2"
-};
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

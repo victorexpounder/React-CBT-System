@@ -9,6 +9,10 @@
     .heading{
       font-size: 1rem;
       margin-bottom: 2rem;
+      font-family: "Poppins", sans-serif;
+      @media (min-width: 800px) {
+        font-size: 1.5rem;
+      }
     }
   }
   .calculator-button-container {
@@ -66,17 +70,35 @@
     border-radius: 10px;
     padding: 2rem;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    height: 55%;
+    overflow: auto;
+    @media (min-width: 800px) {
+      max-width: 800px;
+    }
+    .question {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      font-family: "Poppins", sans-serif;
+      width: 100%;
+      white-space: normal; /* Allow the text to wrap */
+      overflow: auto;
+      word-wrap: break-word;
+      @media (min-width: 800px) {
+        font-size: 2.5rem;
+        
+      }
+      
+    }
   }
   
-  .question {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    
-  }
   .questionCount{
     font-size: 1rem;
     margin-bottom: 1rem;
+    @media (min-width: 800px) {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
   }
   
   .options {
@@ -95,7 +117,9 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.2s ease;
-  
+      @media (min-width: 800px) {
+        font-size: 1.5rem;
+      }
       &:hover {
         background-color: #f8f8f8;
       }
@@ -135,6 +159,7 @@
     position: absolute;
     top: 1.5rem;
     right: 1rem;
+    font-size: 14px;
   }
   .colouredtime{
     color: red;

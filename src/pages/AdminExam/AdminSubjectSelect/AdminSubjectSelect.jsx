@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { WidgetTemp } from '../../../components/ExamsWidget/ExamsWidget';
 import { TeacherSubject } from '../../../TeacherSubject';
 import { UserContext } from '../../../contex/UserContext';
-import { collection, doc, getDoc, getDocs, onSnapshot, query } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../../firebase';
 
 
@@ -30,16 +30,25 @@ export const AdminSubjectSelect = () => {
   const [open, setOpen] = useState(false);
     const handleClose = () => {
         setOpen(false);
+        
     };
     const handleOpen = () => {
         setOpen(true);
     };
 
     // const [subjects, setSubjects] = useState([]);
-    const subjects = TeacherSubject();
+    const teacherSubjects = TeacherSubject();
+
+
+    const [subjects, setSubjects] = useState(['Loading...']);
+
     const [subjectList, setSubjectList] = useState([
       ''
     ]);
+    const [hodsubjectList, setHodSubjectList] = useState([
+      ''
+    ]);
+    const [hodDepartments, setHodDepartments] = useState();
   
     // const fetchSubjects = async () => {
     //   try {
@@ -58,6 +67,10 @@ export const AdminSubjectSelect = () => {
       });
       setSubjectList(subjectsData);
     });
+
+    
+
+
   
     useEffect(() => {
   
@@ -65,6 +78,70 @@ export const AdminSubjectSelect = () => {
         unsubscribeSubjectsD(); // Clean up the listener when the component unmounts
       };
     }, []);
+
+
+    const fetchDepartments = () =>{
+      const departmentsRef = collection(db, "departments");
+      const q = query(departmentsRef, where("hodId", "==", currentUser.uid));
+
+      // Set up a real-time listener using onSnapshot
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const updateddepartments = [];
+        querySnapshot.forEach((doc) => {
+          updateddepartments.push(doc.id);
+        });
+
+        setHodDepartments(updateddepartments);
+        console.log(updateddepartments);
+      });
+
+      return unsubscribe;
+      
+    }
+
+    useEffect(() => {
+      const unsubscribe = fetchDepartments(); // Call fetchDepartments directly
+      return () => {
+        unsubscribe(); // Clean up the listener when the component unmounts
+      };
+    }, []);
+
+    const fetchHodSubjects = async() =>{
+      if(hodDepartments.length > 0)
+      {
+        const hodSubRef = collection(db, "subjects");
+        const q = query(hodSubRef, where("department", "in", hodDepartments));
+        
+        // Set up a real-time listener using onSnapshot
+          const querySnapshot = await getDocs(q);
+          const HodSubs = [];
+          const HodSubsAll = [];
+
+          querySnapshot.forEach((doc) => {
+            const notEqual = teacherSubjects.every(item => item !== doc.id);
+            HodSubsAll.push(doc.id);
+            if(notEqual)
+            {
+              HodSubs.push(doc.id);
+            }
+          
+          const updatedSubjectList = [...teacherSubjects, ...HodSubs];
+          setSubjects(updatedSubjectList);
+          localStorage.setItem('hodSubjects', JSON.stringify(HodSubsAll))
+          console.log(updatedSubjectList);
+        });
+
+    }else{
+        setSubjects(teacherSubjects);
+    }
+  }
+    useEffect(()=>{
+    
+    fetchHodSubjects(); 
+
+    },[hodDepartments]) 
+
+    
 
     const [userData, setUserData] = useState();
     const { currentUser } = useContext(UserContext);
@@ -99,7 +176,7 @@ export const AdminSubjectSelect = () => {
           </div>
           {userData?.role === "Director"?
 
-            <div className="widget-container">
+            <div className="widget-container" style={{height: '70vh', overflowY: 'auto'}}>
             {subjectList.map((subject) =>(
               <Link to={'/exams/class/term/subjects/subjectpage'} style={{textDecoration: 'none'}}>
                   <div className="wi" onClick={() => handleStore(subject)}>

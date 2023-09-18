@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { SideBar } from '../../../components/SideBar/SideBar'
 import { Backdrop, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide, Tooltip} from '@mui/material'
-import { Delete, Menu } from "@mui/icons-material";
+import { Menu } from "@mui/icons-material";
 import { NavBar } from '../../../components/NavBar/NavBar'
 import { AccountCard } from '../../../components/AccountCard/AccountCard'
 import { WidgetTemp } from '../../../components/ExamsWidget/ExamsWidget';
 import './YearPage.scss';
 import { Link } from 'react-router-dom'
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import { collection, doc, getDocs, onSnapshot, query, setDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, setDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -44,17 +44,31 @@ export const YearPage = () => {
         setDopen(false);
     };
     const handleDopen = () => {
+        getNextYear();
         setDopen(true);
     };
 
     const [sessionList, setSessionList] = useState([]);
     const [nextYear, setNextYear] = useState('');
+
+    const getNextYear = () =>{
+      
+      if (sessionList.length > 0) {
+        const lastYear =  sessionList[sessionList.length - 1];
+        const lastYearParts = lastYear.split('-'); // Split the year into two parts
+        const nextYearPart = parseInt(lastYearParts[0]) + 2; // Increment the second part of the year
+        const nextYear = `${lastYearParts[1]}-${nextYearPart}`; // Construct the next year
+        setNextYear(nextYear);
+      }
+    }
+    // Call the fetchSubjects function to populate the sessionList state
+    useEffect(() => { 
     const fetchSubjects = () => {
       const sessionRef = collection(db, "session");
       const q = query(sessionRef);
     
       // Set up a real-time listener using onSnapshot
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const unsubscribe = onSnapshot(sessionRef, (querySnapshot) => {
         const sessions = [];
     
         querySnapshot.forEach((doc) => {
@@ -62,8 +76,10 @@ export const YearPage = () => {
           sessions.push(session);
         });
         
+        
         setSessionList(sessions);
-        getNextYear();
+       
+        
       });
     
       // Clean up the listener when the component unmounts
@@ -72,8 +88,7 @@ export const YearPage = () => {
       };
     };
     
-    // Call the fetchSubjects function to populate the sessionList state
-    useEffect(() => {
+    
       const unsubscribe = fetchSubjects();
     
       // Clean up the listener when the component unmounts
@@ -83,32 +98,16 @@ export const YearPage = () => {
     }, []);
     
     
-    const getNextYear = () =>{
-      if (sessionList.length > 0) {
-        const lastYear =  sessionList[sessionList.length - 1];
-        const lastYearParts = lastYear.split('-'); // Split the year into two parts
-        const nextYearPart = parseInt(lastYearParts[0]) + 2; // Increment the second part of the year
-        const nextYear = `${lastYearParts[1]}-${nextYearPart}`; // Construct the next year
-        setNextYear(nextYear);
-      }
-    }
-      
-        
-      
     
-  
-
+      
     function handleStore (year){
       localStorage.setItem("session", JSON.stringify(year));
     }
 
     const handleAddSession = () =>{
-      
       const userDocRef = doc(db, 'session', nextYear);
       setDoc(userDocRef, { teacher : null},); 
       handleDclose();
-  
-
     }
 
    

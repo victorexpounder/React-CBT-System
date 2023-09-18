@@ -43,6 +43,16 @@ export const LoginForm = ({text}) => {
       }
     }, [showNoauth]);
 
+    useEffect(() => {
+      if (error) {
+        const timer = setTimeout(() => {
+          setError(false)
+        }, 4000);
+    
+        return () => clearTimeout(timer);
+      }
+    }, [error]);
+
   const handleLogout = () => {
     // Sign out the user from Firebase
     auth.signOut()
@@ -85,7 +95,7 @@ export const LoginForm = ({text}) => {
             navigate('/selectExam')
           }else{
             if(text[0]!=='Login To Admin Portal'){
-              setMessage('Seems you are trying to login in with an admin account, navigate to admin login page');
+              setMessage('Wrong Email or password, Are you trying to Login as admin?');
               setShowNoauth(true);
             }else{
 
@@ -93,7 +103,7 @@ export const LoginForm = ({text}) => {
               const isApproved = userDoc.data().approved;
               const isDirector = userDoc.data().role;
           
-              if (!isApproved && isDirector !== "Director" ) {
+              if (!isApproved) {
                 // User is not approved, redirect to pending approval page
                 setMessage('You are not approved to access this system contact Director or principal');
                 setShowNoauth(true);
@@ -129,7 +139,7 @@ export const LoginForm = ({text}) => {
         {showPassword? <VisibilityRounded /> : <VisibilityOffRounded/>}
         </div>
         </div>
-        {error &&   Offline? <span>You are offline, Please connect to the internet to login</span> :error && <span>Wrong Email Or Password!</span>}
+        {error &&   Offline? <span>You are offline, Please connect to the internet to login</span> :error && <span>Wrong Email Or Password! <a href="/ResetPassword">Reset Password</a></span>}
         
         <button type="submit">{loading? 'Logging You In...' : 'Login'}</button>
       </form>

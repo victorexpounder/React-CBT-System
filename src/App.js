@@ -25,6 +25,7 @@ import { SelectExam } from "./pages/Exam/SelectExam/SelectExam";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { useNavigate } from "react-router-dom";
+import { ForgotLogin } from "./pages/ForgotLogin/ForgotLogin";
 
 
 
@@ -43,6 +44,9 @@ function App() {
   };
 
   
+
+
+  
   return (
     <div className="App">
       
@@ -52,6 +56,7 @@ function App() {
               <Route path="login" element={<Login/>} />
               <Route path="Adminlogin" element={<AdminLogin/>} />
               <Route path="AdminSignup" element={<AdminSignup/>} />
+              <Route path="ResetPassword" element={<ForgotLogin/>} />
               <Route path="selectExam" element={<RequireAuth><SelectExam/></RequireAuth>} />
               <Route index element={<RequireAuth><Home/></RequireAuth>} />
               <Route path="teachers" element={<RequireAuth><List/></RequireAuth>} />

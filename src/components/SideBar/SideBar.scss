@@ -1,3 +1,4 @@
+
 *{
     margin: 0;
     padding:0;
@@ -7,7 +8,7 @@
     flex: 1;
     border-right: 0.5px solid rgb(224, 224, 224);
     min-height: 100vh;
-    
+    z-index: 1000;
     
     .top{
         height: 50px;
@@ -31,39 +32,44 @@
         
         padding-left: 10px;
 
-        
         ul{
             list-style: none;
             padding: 0;
             margin: 0;
+            
             .title{
                 font-size: 10px;
                 font-weight: bold;
                 color: #999;
                 margin-top: 15px;
-                margin-bottom: 5px;
+                margin-bottom: 10px;
+                @media (min-width : 700px) {
+                    font-size: 15px;
+                }
             }
             li{
                 display: flex;
                 align-items: center;
-                padding: 5px;
+                padding: 15px;  
                 cursor: pointer;
                 transition: 0.5s;
                 margin-bottom: 10px;
+                border-radius: 5px;
                 
                 &:hover{
                     background-color: #ece8ff;
                 }
 
                 .icon {
-                    font-size: 18px;
+                    font-size: 20px;
                     color: #7451f8;
                 }
                 span{
-                    font-size: 13px;
+                    font-size: 15px;
                     font-weight: 600;
                     color: #888;
                     margin-left: 10px;
+                    font-family: 'Poppins', sans-serif;
                 }
             }
         }
@@ -93,10 +99,61 @@
 
     }
     @media (max-width: 800px) {
-        position: absolute;
-        z-index: 10000;
-        background-color: #fff;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+        position: fixed; // Keeps the sidebar fixed on the screen
+        width: 250px; // Adjust the width to fit the screen
+        height: 100%; // Full-height sidebar
+        transition: width 0.3s; // Add smooth transition for width change
+        background-color: #fff; // Set a white background
+        
+        .top {
+          justify-content: flex-start; // Move the logo to the top
+          padding: 5px; // Add some padding to the top section
+        }
+    
+        .center {
+          padding-left: 5px; // Remove left padding
+          background-color: #fff; // Set a white background
+          height: calc(100% - 100px); // Subtract top and bottom heights
+    
+          ul {
+            .title {
+              font-size: 15px; // Increase title font size
+            }
+    
+            li {
+              padding: 15px; // Increase padding for touch targets
+              margin-bottom: 15px; // Increase margin for list items
+
+              .icon {
+                font-size: 18px;
+                color: #7451f8;
+            }
+            span{
+                font-size: 13px;
+                font-weight: 600;
+                color: #888;
+                margin-left: 10px;
+            }
+            }
+          }
+        }
+    
+        .bottom {
+          position: absolute; // Position the bottom div
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          background-color: #fff; // Set a white background
+          padding: 10px 15px; // Add padding to the bottom section
+    
+          .white,
+          .black {
+            height: 20px;
+            width: 20px;
+            margin-right: 5px; // Add some spacing between the color divs
+          }
+        }
+      }
+    
 }
  

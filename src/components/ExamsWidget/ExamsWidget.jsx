@@ -7,9 +7,7 @@ export const WidgetTemp = ({content}) => {
   
 
   return (
-    <div className="container">
-      
-      
+    <div className="containerEW">
           <div className="Rwidgetb">
           <h1>{content}</h1>
           </div>

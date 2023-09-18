@@ -28,7 +28,6 @@ export default function SelectAutoWidth({role, setRole}) {
           </MenuItem>
           <MenuItem value='Teacher'>Teacher</MenuItem>
           <MenuItem value= 'Principal'>Principal</MenuItem>
-          <MenuItem value='Director'>Director</MenuItem>
         </Select>
       </FormControl>
     </div>
